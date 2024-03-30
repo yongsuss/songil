@@ -1,0 +1,7 @@
+# created by virtualenv automatically
+
+# dependencies
+Lib/
+Scripts/
+
+*.cfg
