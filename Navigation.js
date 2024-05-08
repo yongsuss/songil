@@ -53,6 +53,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack'; // 추가
 import Feed from './screens/Feed';
 import Home from './screens/Home';
+import NewsDetail from './screens/NewsDetail';
 import Profile from './screens/Profile';
 import Rank from './screens/Rank';
 import FundBoard from './screens/FundBoard';
@@ -80,7 +81,14 @@ function AuthStack({ setIsLoggedIn }) {
   );
 }
 
-
+function HomeStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="Home" component={Home} />
+      <Stack.Screen name="NewsDetail" component={NewsDetail} options={{ title: 'News Details' }} />
+    </Stack.Navigator>
+  );
+}
 
 /*function TabGroup() {
     return (
@@ -120,7 +128,8 @@ function TabGroup() {
               tabBarInactiveTintColor: 'gray', // 비활성 탭의 색상
           })}
       >
-          <Tab.Screen name="홈" component={Home} />
+          
+          <Tab.Screen name="홈" component={HomeStack} />
           <Tab.Screen name="기부게시판" component={FundBoard} />
           <Tab.Screen name="모금" component={AllFund} />
           <Tab.Screen name="랭킹" component={Rank} />

@@ -1,4 +1,4 @@
-import React from 'react';
+/*import React from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -14,9 +14,6 @@ const ProfileScreen = () => {
         />
         <View style={styles.profileTitle}>
           <Text style={styles.userName}>닉네임</Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>수정</Text>
-          </TouchableOpacity>
         </View>
       </View>
       <View style={styles.infoBox}>
@@ -32,7 +29,7 @@ const ProfileScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* 하단의 탭 네비게이터는 여기에 포함되지 않았습니다. */}
+      
     </ScrollView>
   );
 };
@@ -63,14 +60,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  editButton: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 5,
-  },
-  editButtonText: {
-    fontSize: 14,
-  },
+  
   infoBox: {
     padding: 16,
   },
@@ -105,6 +95,115 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   // 다른 스타일 요소를 여기에 추가합니다.
+});
+
+export default ProfileScreen;*/
+import React from 'react';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+
+const ProfileScreen = ({ navigation }) => {
+  // 함수 구현 필요
+  const handleMyInfo = () => {
+    // 내정보 화면으로 이동
+    navigation.navigate('MyInfoScreen');
+  };
+
+  const handleSettings = () => {
+    // 환경설정 화면으로 이동
+    navigation.navigate('SettingsScreen');
+  };
+
+  const handleVulnerableCertification = () => {
+    // 취약계층 인증 화면으로 이동
+    navigation.navigate('VulnerableCertificationScreen');
+  };
+
+  const handleLogout = () => {
+    navigation.navigate('LoginScreen');
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.profileHeader}>
+        <Image
+          source={require('../assets/logo.png')}
+          style={styles.profileImage}
+        />
+        <View style={styles.profileTitle}>
+          <Text style={styles.userName}>닉네임</Text>
+        </View>
+      </View>
+      <View style={styles.infoBox}>
+        <TextInput 
+          style={[styles.bioInput, {height: 80}]} // 높이 조정
+          placeholder="상태메세지"
+          multiline
+          numberOfLines={3} // 세로로 세 줄의 높이
+        />
+      </View>
+      {/* 메뉴 영역 */}
+      <TouchableOpacity style={styles.menuItem} onPress={handleMyInfo}>
+        <Text style={styles.menuText}>내정보</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
+        <Text style={styles.menuText}>환경설정</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleVulnerableCertification}>
+        <Text style={styles.menuText}>취약계층인증</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+        <Text style={styles.menuText}>로그아웃</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  profileTitle: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  infoBox: {
+    padding: 16,
+  },
+  bioInput: {
+    borderWidth: 3,
+    borderColor: 'gray',
+    padding: 10,
+    marginBottom: 16,
+  },
+  menuItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  menuText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  // 추가적인 스타일 요소를 여기에 정의할 수 있습니다.
 });
 
 export default ProfileScreen;
