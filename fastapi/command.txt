@@ -1,8 +1,0 @@
-venv 활성화
-.\venv\Scripts\activate
-
-venv 비활성화
-deactivate
-
-fast api 실행
-uvicorn app.main:app --port 8000 --reload
