@@ -5,7 +5,7 @@ const AppContext = createContext();
 const AppProvider = ({ children }) => {
   const [id, setId] = useState(''); 
   const [profileImage, setProfileImage] = useState(null);
-  const apiUrl = "http://20.39.190.194:8001";
+  const apiUrl = "http://20.39.190.194";
   const [nickname, setNickname] = useState('');
   const [grade, setGrade] = useState('');
   const [point, setPoint] = useState('');
