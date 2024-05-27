@@ -12,7 +12,7 @@ const fetchDonationNews = async () => {
         apiKey: 'd96b7ff4c19848e4befe29d24f9f7183'
       }
     });
-    console.log(JSON.stringify(response.data, null, 2)); // 응답 전체를 JSON 형식으로 로그 출력
+   // console.log(JSON.stringify(response.data, null, 2)); // 응답 전체를 JSON 형식으로 로그 출력
     const articles = response.data.articles;
     return removeDuplicates(articles);
   } catch (error) {

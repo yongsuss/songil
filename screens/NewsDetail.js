@@ -3,8 +3,8 @@ import { ScrollView, View, Text, Image, StyleSheet } from 'react-native';
 
 const NewsDetail = ({ route }) => {
   const { article } = route.params;
-  console.log('Article Content:', article.content);
-  console.log('Article Description:', article.description);
+  //console.log('Article Content:', article.content);
+  //console.log('Article Description:', article.description);
 
 
   const stripHtml = (html) => {

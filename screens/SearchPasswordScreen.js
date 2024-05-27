@@ -1,29 +1,47 @@
+//비밀번호 찾기 화면
+
 
 import React, { useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import Clipboard from '@react-native-community/clipboard'; // 복사 기능을 위한 모듈 가져오기
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Icon 추가
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
+import Clipboard from '@react-native-community/clipboard';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 const SearchPasswordScreen = () => {
   const navigation = useNavigation();
-  const [password, setPassword] = useState(''); // 비밀번호 상태
+  const [id, setId] = useState('');
+  const [phone, setPhone] = useState('');
+  const [password, setPassword] = useState('');
 
-  // 뒤로가기 핸들러
   const handleBack = () => {
     navigation.goBack();
   };
 
-  // 비밀번호 확인 핸들러
-  const handleConfirm = () => {
-    // 비밀번호 검색 로직 구현 부분
-    setPassword('YourPassword'); // 예시 비밀번호 설정
+  const handleConfirm = async () => {
+    try {
+      const response = await fetch('http://20.39.190.194/users/');
+      const users = await response.json();
+
+      const user = users.find(user => user.id === id && user.phone === phone);
+      if (user) {
+        setPassword(user.password);
+      } else {
+        Alert.alert("사용자를 찾을 수 없습니다", "ID와 휴대전화 번호를 다시 확인해주세요.");
+        setPassword('');
+      }
+    } catch (error) {
+      Alert.alert("Error", "데이터를 가져오는 데 문제가 발생했습니다.");
+      console.error(error);
+    }
   };
 
-  // 클립보드에 복사 핸들러
   const copyToClipboard = () => {
-    Clipboard.setString(password); // 비밀번호 클립보드에 복사
-    alert('비밀번호가 클립보드에 복사되었습니다.'); // 사용자에게 알림
+    if (password) {
+      Clipboard.setString(password);
+      Alert.alert('알림', '비밀번호가 클립보드에 복사되었습니다.');
+    } else {
+      Alert.alert('알림', '복사할 비밀번호가 없습니다.');
+    }
   };
 
   return (
@@ -31,14 +49,24 @@ const SearchPasswordScreen = () => {
       <TouchableOpacity onPress={handleBack} style={styles.backButton}>
         <Text style={styles.backButtonText}>←</Text>
       </TouchableOpacity>
-      <Text style={styles.header}>비밀번호찾기</Text>
-      <TextInput placeholder="id" style={styles.input} />
-      <TextInput placeholder="휴대전화" style={styles.input} />
+      <Text style={styles.header}>비밀번호 찾기</Text>
+      <TextInput
+        placeholder="ID"
+        style={styles.input}
+        onChangeText={setId}
+        value={id}
+      />
+      <TextInput
+        placeholder="휴대전화"
+        style={styles.input}
+        onChangeText={setPhone}
+        value={phone}
+      />
       <View style={styles.passwordContainer}>
         {password !== '' && (
           <>
-            <TextInput placeholder="password" style={styles.input} value={password} editable={false} />
-            <TouchableOpacity onPress={copyToClipboard} >
+            <TextInput placeholder="Password" style={styles.input} value={password} editable={false} />
+            <TouchableOpacity onPress={copyToClipboard}>
               <Icon name="content-copy" size={20} color="#000" />
             </TouchableOpacity>
           </>
@@ -52,7 +80,6 @@ const SearchPasswordScreen = () => {
 };
 
 const styles = StyleSheet.create({
-  // ... 이전 스타일
   passwordContainer: {
     flexDirection: 'row', // 수평 정렬
     justifyContent: 'space-between', // 요소들 사이의 공간 분배
@@ -116,3 +143,5 @@ const styles = StyleSheet.create({
 });
 
 export default SearchPasswordScreen;
+
+
