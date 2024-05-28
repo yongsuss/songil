@@ -185,7 +185,7 @@ import React, { useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { AppContext } from '../AppContext';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
   const { apiUrl, id } = useContext(AppContext); // AppContext에서 userId를 가져옴
@@ -244,18 +244,21 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     fetchUserInfo();
   }, [apiUrl, id]);
 
-  const handleChoosePhoto = () => {
-    const options = { mediaType: 'photo', quality: 1, includeBase64: false };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setProfileImage(source.uri);
-      }
+  const handleChoosePhoto = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("We need permission to access your photos!");
+      return;
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
     });
+
+    if (!result.cancelled) {
+      setProfileImage(result.assets[0].uri);
+    }
   };
 
   return (
