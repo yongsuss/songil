@@ -3,39 +3,45 @@ import React, { createContext, useState } from 'react';
 const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
-  const [id, setId] = useState(''); 
-  const [profileImage, setProfileImage] = useState(null);
-  const apiUrl = "http://20.39.190.194";
-  const [nickname, setNickname] = useState('');
-  const [grade, setGrade] = useState('');
-  const [point, setPoint] = useState('');
-  const [common, setCommon] = useState('');
-  const [view_num, setView_Num] = useState('');
-  const [tastenote_num, setTastenote_Num] = useState('');
-  const [starpoint, setStar_Point] = useState('');
+  const [id, setId] = useState(''); // 사용자 ID
+  const [admin, setAdmin] = useState(false); // 관리자 여부, 불리언으로 초기화
+  const [nickname, setNickname] = useState(''); // 닉네임
+  const [age, setAge] = useState(''); // 나이
+  const [gender, setGender] = useState(''); // 성별
+  const [message, setMessage] = useState(''); // 메시지
+  const [certification, setCertification] = useState(false); // 취약계층 인증, 불리언으로 초기화
+  const [notice, setNotice] = useState(false); // 공지 수신 여부, 불리언으로 초기화
+  const [phone, setPhone] = useState(''); // 전화번호
+  const [point, setPoint] = useState(0); // 포인트, 숫자로 초기화
+  const [rank, setRank] = useState(0); // 등급, 숫자로 초기화
+  
 
-
+  const apiUrl = "http://20.39.190.194"; // API의 기본 URL
 
   const contextValue = {
     id,
     setId,
-    profileImage,
-    setProfileImage,
     apiUrl,
+    admin,
+    setAdmin,
     nickname,
-    grade,
-    point,
-    common,
-    starpoint,
-    view_num,
     setNickname,
-    setGrade,
+    age,
+    setAge,
+    gender,
+    setGender,
+    message,
+    setMessage,
+    certification,
+    setCertification,
+    notice,
+    setNotice,
+    phone,
+    setPhone,
+    point,
     setPoint,
-    setCommon,
-    tastenote_num, 
-    setStar_Point,
-    setTastenote_Num,
-    setView_Num,
+    rank, 
+    setRank,
   };
 
   return (

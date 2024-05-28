@@ -1,3 +1,4 @@
+// 로그인 화면
 /*import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { AppContext } from '../AppContext';
@@ -7,34 +8,41 @@ import axios from "axios";
 const LoginScreen = ({ onLoginSuccess }) => {
     const navigation = useNavigation(); // useNavigation 훅을 사용하여 네비게이션 객체를 가져옴
     
-    // 로그인 상태와 업데이트 함수를 가져옵니다 (props 추가 필요)
-  
-    // 이 함수는 id와 password가 올바를 때 호출됩니다.
-    const handleLogin = () => {
-        // TODO: 여기에 로그인 검증 로직을 추가합니다.
-        // 예: id === 'expectedId' && password === 'expectedPassword'
-        const id = 'user_id'; // 사용자가 입력한 id
-        const password = 'user_password'; // 사용자가 입력한 password
-
-        onLoginSuccess(true); //임시로 로그인 성공 
+    const { apiUrl } = useContext(AppContext);//전역변수
+    const [id, setId] = useState();// 사용자가 입력한 id
+    const [pw, setPw] = useState();// 사용자가 입력한 password
 
 
-        // 임시로 항상 로그인 성공으로 가정
-        if (id === 'expectedId' && password === 'expectedPassword') {
-            onLoginSuccess(true); // 로그인 상태를 true로 업데이트
-        } else {
-            // 로그인 실패 처리
-            alert('ID 또는 비밀번호가 올바르지 않습니다.');
+    const handleLogin = async () => {//로그인 api
+      onLoginSuccess(true);
+        const url = apiUrl+"/user/login/?id="+id+"&pw="+pw;
+
+        try {
+          const response = await axios.get(url);
+          console.log(response.data);
+    
+          if (response.data) {
+            onLoginSuccess(true);
+          }
+          else{
+            alert("No user information");
+          }
+        } catch (error) {
+          // API 호출 중 에러가 발생한 경우
+          console.log(error);
+          alert('ID 또는 비밀번호가 올바르지 않습니다.')
         }
     };
+
+
   //로그인 함수
   return (
     <View style={styles.container}>
       <Image source={require('../assets/logo.png')} style={styles.logo} />
       <Text style={styles.brandName}>songil</Text>
       <View style={styles.inputContainer}>
-        <TextInput placeholder="id or email" style={styles.input} />
-        <TextInput placeholder="password" style={styles.input} secureTextEntry />
+        <TextInput placeholder="id or email" style={styles.input} onChangeText={setId}/>
+        <TextInput placeholder="password" style={styles.input} onChangeText={setPw} secureTextEntry />
       </View>
       <TouchableOpacity style={styles.loginButton} onPress={handleLogin}>
       <Text style={styles.loginButtonText}>login</Text>
@@ -101,10 +109,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen;
-*/
+export default LoginScreen;*/
 
-//import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, Image } from 'react-native';
 import { AppContext } from '../AppContext';
@@ -120,14 +126,15 @@ const LoginScreen = ({ onLoginSuccess }) => {
 
 
     const handleLogin = async () => {//로그인 api
-        
+      onLoginSuccess(true);
         const url = apiUrl+"/user/login/?id="+id+"&pw="+pw;
 
         try {
-          const response = await axios.get(url);//api 호출 : GET 방식
+          const response = await axios.get(url);
           console.log(response.data);
     
           if (response.data) {
+            
             onLoginSuccess(true);
           }
           else{

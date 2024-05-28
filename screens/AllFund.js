@@ -1,21 +1,27 @@
+//모금 화면
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 
-const AllFund = () => {
+const FundraiserScreen = () => {
+  const [activeTab, setActiveTab] = React.useState('current'); // 탭 상태 관리
+
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.headerText}>모금함</Text>
+      <View style={styles.tabContainer}>
+        <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('current')}>
+          <Text style={[styles.tabText, activeTab === 'current' && styles.activeTabText]}>진행중</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('completed')}>
+          <Text style={[styles.tabText, activeTab === 'completed' && styles.activeTabText]}>완료</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.tab} onPress={() => setActiveTab('upcoming')}>
+          <Text style={[styles.tabText, activeTab === 'upcoming' && styles.activeTabText]}>예정</Text>
+        </TouchableOpacity>
       </View>
-      <ScrollView style={styles.content}>
-        <View style={styles.segmentControl}>
-          <Text style={styles.segmentText}>전체</Text>
-          <Text style={styles.segmentText}>모금중</Text>
-          <Text style={styles.segmentTextSelected}>모금 종료</Text>
-        </View>
-        <View style={styles.listItem}>
-          {/* List items would go here */}
-        </View>
+      <ScrollView style={styles.listContainer}>
+        {activeTab === 'current' && <Text style={styles.listItem}>현재 진행 중인 모금 리스트</Text>}
+        {activeTab === 'completed' && <Text style={styles.listItem}>완료된 모금 리스트</Text>}
+        {activeTab === 'upcoming' && <Text style={styles.listItem}>예정된 모금 리스트</Text>}
       </ScrollView>
     </View>
   );
@@ -26,41 +32,35 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f0f0f0',
   },
-  header: {
-    backgroundColor: '#fff',
-    padding: 16,
-    alignItems: 'center',
-    borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  content: {
-    backgroundColor: '#fff',
-  },
-  segmentControl: {
+  tabContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    padding: 16,
+    backgroundColor: '#ffffff',
     borderBottomWidth: 1,
-    borderBottomColor: '#ddd',
+    borderBottomColor: '#dedede',
   },
-  segmentText: {
-    fontSize: 16,
-    color: 'black',
+  tab: {
+    paddingVertical: 10,
+    flex: 1,
+    alignItems: 'center',
   },
-  segmentTextSelected: {
-    fontSize: 16,
-    color: 'black',
+  tabText: {
+    color: '#666666',
+    fontWeight: '500',
+  },
+  activeTabText: {
+    color: '#000000',
     fontWeight: 'bold',
-    borderBottomWidth: 2,
-    borderBottomColor: 'red', // 선택된 탭에 적용할 색상을 지정합니다.
+  },
+  listContainer: {
+    padding: 10,
   },
   listItem: {
-    // 여기에 리스트 아이템 스타일을 추가합니다.
+    backgroundColor: '#ffffff',
+    padding: 15,
+    marginBottom: 10,
+    borderRadius: 5,
   },
 });
 
-export default AllFund;
+export default FundraiserScreen;
