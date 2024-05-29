@@ -1,145 +1,22 @@
-/*import React from 'react';
-import { 
-  StyleSheet, 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  Image,
-  StatusBar,
-} from 'react-native';
+//회원가입칸
+/*
+import React, { useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 
 const SignUpScreen = ({ navigation }) => {
-  return (
-    <View style={styles.container}>
-      <StatusBar barStyle="dark-content" />
-      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.header}>
-        <Image source={require('../assets/logo.png')} style={styles.backIcon} />
-        <Text style={styles.headerTitle}>회원가입</Text>
-      </TouchableOpacity>
-      <View style={styles.form}>
-        <TextInput placeholder="id" style={styles.input} />
-        <TouchableOpacity style={styles.button}>
-          <Text style={styles.buttonText}>중복확인</Text>
-        </TouchableOpacity>
-        <TextInput placeholder="password" secureTextEntry style={[styles.input, styles.inputWithMargin]} />
-        <TextInput placeholder="이름" style={[styles.input, styles.inputWithMargin]} />
-        <TextInput placeholder="닉네임" style={[styles.input, styles.inputWithMargin]} />
-        <TextInput placeholder="전화번호" style={[styles.input, styles.inputWithMargin]} />
-        <TextInput placeholder="주소 입력" style={[styles.input, styles.inputWithMargin]} />
-      </View>
-      <TouchableOpacity style={styles.signupButton}>
-        <Text style={styles.signupButtonText}>가입</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.cancelButton}>
-        <Text style={styles.cancelButtonText}>취소</Text>
-      </TouchableOpacity>
-    </View>
-  );
-};
+  const [gender, setGender] = useState(null); // 성별 상태 추가
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'white',
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    backgroundColor: 'white',
-    borderBottomWidth: 1,
-    borderBottomColor: '#f0f0f0',
-  },
-  backIcon: {
-    width: 24,
-    height: 24,
-  },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginLeft: 16,
-  },
-  form: {
-    margin: 16,
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ddd',
-    padding: 10,
-    borderRadius: 4,
-    backgroundColor: '#fff',
-  },
-  inputWithMargin: {
-    marginTop: 16,
-  },
-  button: {
-    backgroundColor: '#E0E0E0',
-    padding: 10,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginTop: 16,
-  },
-  buttonText: {
-    color: '#000',
-    fontWeight: 'bold',
-  },
-  signupButton: {
-    backgroundColor: '#56CCF2',
-    padding: 15,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginTop: 32,
-    marginHorizontal: 16,
-  },
-  signupButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-  cancelButton: {
-    backgroundColor: '#grey',
-    padding: 15,
-    borderRadius: 4,
-    alignItems: 'center',
-    marginTop: 10,
-    marginHorizontal: 16,
-  },
-  cancelButtonText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 18,
-  },
-});
-
-export default SignUpScreen;
-//{ navigation }*/
-import React from 'react';
-import { useNavigation } from '@react-navigation/native';
-import {
-  StyleSheet,
-  View,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  ScrollView
-} from 'react-native';
-
-const SignUpScreen = ({ navigation }) => {
-  //const navigation = useNavigation();
-
-  // 뒤로 가기 버튼 핸들러
   const handleBack = () => {
     navigation.goBack();
   };
 
-  // 중복 확인 버튼 핸들러
   const checkDuplicate = () => {
     // 중복 확인 로직 구현
   };
-  const checkAdress = () => {
-    // 중복 확인 로직 구현
+
+  // 성별 선택 핸들러
+  const selectGender = (selectedGender) => {
+    setGender(selectedGender);
   };
 
   return (
@@ -162,11 +39,30 @@ const SignUpScreen = ({ navigation }) => {
           <Text style={styles.checkButtonText}>중복확인</Text>
         </TouchableOpacity>
       </View>
-      <TextInput placeholder="휴대전화" style={styles.input} />
-      <View style={styles.inputContainer}>
-        <TextInput placeholder="주소찾기" style={styles.input} />
-        <TouchableOpacity onPress={checkAdress} style={styles.checkButton}>
-          <Text style={styles.checkButtonText}>주소찾기</Text>
+      <TextInput
+        placeholder="주민등록번호 앞자리"
+        style={styles.input}
+        keyboardType="numeric"
+        maxLength={6} // 주민등록번호는 6자리로 제한
+      />
+      <TextInput
+        placeholder="휴대전화"
+        style={styles.input}
+        keyboardType="phone-pad"
+        maxLength={11} // 휴대전화는 11자리로 제한
+      />
+      <View style={styles.genderContainer}>
+        <TouchableOpacity
+          style={[styles.genderButton, gender === 'male' ? styles.selected : styles.notSelected]}
+          onPress={() => selectGender('male')}
+        >
+          <Text style={styles.genderButtonText}>남자</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.genderButton, gender === 'female' ? styles.selected : styles.notSelected]}
+          onPress={() => selectGender('female')}
+        >
+          <Text style={styles.genderButtonText}>여자</Text>
         </TouchableOpacity>
       </View>
       <TouchableOpacity style={styles.confirmButton}>
@@ -181,48 +77,70 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingTop: 20,
     paddingHorizontal: 20,
-    backgroundColor: '#F5F5F5', // 배경 색상을 이미지 배경 색상과 일치시킵니다.
+    backgroundColor: '#F5F5F5',
   },
   backButton: {
     alignSelf: 'flex-start',
-    marginBottom: 20, // 뒤로 가기 버튼 위치 조정
+    marginBottom: 20,
   },
   backButtonText: {
-    fontSize: 20, // 뒤로 가기 텍스트 크기 조정
-    color: '#000', // 뒤로 가기 텍스트 색상
+    fontSize: 20,
+    color: '#000',
   },
   header: {
     fontSize: 24,
     fontWeight: 'bold',
     textAlign: 'center',
-    marginBottom: 40, // 회원가입 헤더 스타일
+    marginBottom: 40,
   },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20, // 입력 필드와 중복 확인 버튼 컨테이너
+    marginBottom: 20,
   },
   input: {
-    borderWidth: 0, // 테두리 없음
-    borderBottomWidth: 1, // 밑줄만 표시
-    borderColor: '#D3D3D3', // 밑줄 색상
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: '#D3D3D3',
     paddingVertical: 10,
     paddingHorizontal: 15,
     fontSize: 16,
-    flex: 1, // 너비 100% 사용
+    flex: 1,
   },
-  
   checkButton: {
     marginLeft: 10,
     paddingVertical: 5,
     paddingHorizontal: 15,
-    backgroundColor: '#C0C0C0', // 중복 확인 버튼 배경색
-    borderRadius: 4, // 중복 확인 버튼 둥근 모서리
+    backgroundColor: '#C0C0C0',
+    borderRadius: 4,
   },
   checkButtonText: {
-    fontSize: 14, // 중복 확인 버튼 텍스트 크기
-    color: '#000', // 중복 확인 버튼 텍스트 색상
+    fontSize: 14,
+    color: '#000',
+  },
+  genderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 4,
+    width: '45%',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    marginTop: 10
+  },
+  genderButtonText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  notSelected: {
+    backgroundColor: '#FFFFFF',
+  },
+  selected: {
+    backgroundColor: '#a0a0a0',
   },
   confirmButton: {
     backgroundColor: '#a0a0a0',
@@ -230,14 +148,170 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     borderRadius: 5,
-    marginBottom: 10,
+    //marginTop: 10, // 버튼을 더 아래로 내림
   },
   confirmButtonText: {
     fontSize: 18,
-    color: '#FFFFFF', // 확인 버튼 텍스트 색상
-    fontWeight: 'bold', // 확인 버튼 텍스트 굵기
+    color: '#FFFFFF',
+    fontWeight: 'bold',
   }
 });
 
+export default SignUpScreen;*/
+
+
+import React, { useState, useContext } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import { AppContext } from '../AppContext';
+
+const SignUpScreen = () => {
+  const navigation = useNavigation();
+  const { apiUrl } = useContext(AppContext);
+  const [id, setId] = useState('');
+  const [pw, setPw] = useState('');
+  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [resident, setResident] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gender, setGender] = useState('');
+  const [message, setMessage] = useState('');
+
+  const handleSubmit = async () => {
+    const user = {
+      id,
+      nickname,
+      name,
+      phone,
+      gender,
+      resident,
+      password: pw,
+      message
+    };
+
+    try {
+      const response = await axios.post(`${apiUrl}/user/create/`, user); // API URL 수정
+      console.log(response.data);
+      alert('회원가입이 완료되었습니다.');
+      navigation.goBack(); // 회원가입 후 이전 페이지로 이동
+    } catch (error) {
+      console.error('Request Error:', error.message);
+      alert('회원가입에 실패했습니다. 다시 시도해주세요.');
+      if (error.response) {
+        // 서버 응답을 받았으나 요청이 2xx 범위를 벗어난 경우
+        console.error('Response Data:', error.response.data);
+        console.error('Response Status:', error.response.status);
+      } else if (error.request) {
+        // 요청이 이루어졌으나 응답을 받지 못한 경우
+        console.error('No response:', error.request);
+      } else {
+        // 요청 설정 시 문제가 발생한 경우
+        console.error('Error Message:', error.message);
+      }
+    }
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
+        <Text style={styles.backButtonText}>←</Text>
+      </TouchableOpacity>
+      <Text style={styles.header}>회원가입</Text>
+      <TextInput placeholder="id" style={styles.input} onChangeText={setId} />
+      <TextInput placeholder="password" style={styles.input} onChangeText={setPw} secureTextEntry />
+      <TextInput placeholder="name" style={styles.input} onChangeText={setName} />
+      <TextInput placeholder="nickname" style={styles.input} onChangeText={setNickname} />
+      <TextInput placeholder="주민등록번호 앞자리" style={styles.input} onChangeText={setResident} keyboardType="numeric" maxLength={6} />
+      <TextInput placeholder="휴대전화" style={styles.input} onChangeText={setPhone} keyboardType="phone-pad" maxLength={11} />
+      <TextInput placeholder="message" style={styles.input} onChangeText={setMessage} maxLength={100} />
+      <View style={styles.genderContainer}>
+        <TouchableOpacity
+          style={[styles.genderButton, gender === 'M' ? styles.selected : styles.notSelected]}
+          onPress={() => setGender('M')}
+        >
+          <Text style={styles.genderButtonText}>남자</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.genderButton, gender === 'W' ? styles.selected : styles.notSelected]}
+          onPress={() => setGender('W')}
+        >
+          <Text style={styles.genderButtonText}>여자</Text>
+        </TouchableOpacity>
+      </View>
+      <TouchableOpacity style={styles.confirmButton} onPress={handleSubmit}>
+        <Text style={styles.confirmButtonText}>확인</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: 20,
+    paddingHorizontal: 20,
+    backgroundColor: '#F5F5F5',
+  },
+  backButton: {
+    alignSelf: 'flex-start',
+    marginBottom: 20,
+  },
+  backButtonText: {
+    fontSize: 20,
+    color: '#000',
+  },
+  header: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 40,
+  },
+  input: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderColor: '#D3D3D3',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    fontSize: 16,
+    flex: 1,
+  },
+  genderContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  genderButton: {
+    padding: 10,
+    borderRadius: 4,
+    width: '45%',
+    alignItems: 'center',
+    marginHorizontal: 5,
+    marginTop: 10
+  },
+  genderButtonText: {
+    fontSize: 16,
+    color: '#000',
+  },
+  notSelected: {
+    backgroundColor: '#FFFFFF',
+  },
+  selected: {
+    backgroundColor: '#a0a0a0',
+  },
+  confirmButton: {
+    backgroundColor: '#a0a0a0',
+    padding: 15,
+    width: '100%',
+    alignItems: 'center',
+    borderRadius: 5,
+  },
+  confirmButtonText: {
+    fontSize: 18,
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+  }
+});
 
 export default SignUpScreen;
+

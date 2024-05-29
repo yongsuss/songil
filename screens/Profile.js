@@ -1,38 +1,132 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+// 프로필 화면
 
-const ProfileScreen = () => {
-  // TODO: 사용자 정보와 함수는 실제 데이터와 로직에 따라 연동해야 합니다.
+/*import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { AppContext } from '../AppContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
+  const { apiUrl } = useContext(AppContext);
+  const [profileImage, setProfileImage] = useState(null);
+  const [userInfo, setUserInfo] = useState({
+    nickname: '',
+    message: ''
+  });
+
+  const handleLogout = () => {
+    // 사용자 로그아웃 처리
+    setIsLoggedIn(false);  // 로그인 상태를 false로 설정
+
+    // 모든 스택을 리셋하고 로그인 화면으로 이동
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LoginScreen' }],
+    });
+  };
+  
+  const handleMyInfo = () => {
+    // 내정보 화면으로 이동
+    navigation.navigate('MyInfoScreen');
+  };
+
+  const handleSettings = () => {
+    // 환경설정 화면으로 이동
+    navigation.navigate('SettingsScreen');
+  };
+
+  const handleVulnerableCertification = () => {
+    // 취약계층 인증 화면으로 이동
+    navigation.navigate('VulnerableCertificationScreen');
+  };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      try {
+        const url = `${apiUrl}/users/`; // Simplified URL assuming 'users' endpoint lists users
+        const response = await axios.get(url);
+        if (response.data && response.data.length > 0 ) {
+          const userData = response.data[0];
+          setUserInfo({
+            nickname: userData.nickname,
+            message: userData.message
+          });
+          if (userData.profileImage) {
+            setProfileImage(userData.profileImage);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+        console.error('Request made to:', url);
+        if (error.response) {
+          console.error('Error status:', error.response.status);
+          console.error('Error data:', error.response.data);
+        } else if (error.request) {
+          console.error('No response received');
+        } else {
+          console.error('Error message:', error.message);
+        }
+      }
+    };
+  
+    fetchUserInfo();
+  }, [apiUrl]);
+  
+
+  const handleChoosePhoto = () => {
+    const options = { mediaType: 'photo', quality: 1, includeBase64: false };
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        setProfileImage(source.uri);
+      }
+    });
+  };
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
-        <Image
-          source={require('../assets/logo.png')} // 실제 프로필 이미지 경로로 바꿔야 함
-          style={styles.profileImage}
-        />
+        <TouchableOpacity onPress={handleChoosePhoto}>
+          <Image
+            source={profileImage ? { uri: profileImage } : require('../assets/logo.png')}
+            style={styles.profileImage}
+          />
+        </TouchableOpacity>
         <View style={styles.profileTitle}>
-          <Text style={styles.userName}>닉네임</Text>
-          <TouchableOpacity style={styles.editButton}>
-            <Text style={styles.editButtonText}>수정</Text>
-          </TouchableOpacity>
+          <TextInput
+            style={styles.userName}
+            value={userInfo.nickname}
+            onChangeText={(text) => setUserInfo({ ...userInfo, nickname: text })}
+            placeholder="닉네임"
+          />
         </View>
       </View>
       <View style={styles.infoBox}>
-        <TextInput style={styles.bioInput} placeholder="상태메세지" />
-      </View>
-      <View style={styles.copyRightBox}>
         <TextInput
-          style={styles.copyRightInput}
-          defaultValue="fsd2fe12dasfsdadsasd"
+          style={[styles.bioInput, { height: 80 }]}
+          value={userInfo.message}
+          onChangeText={(text) => setUserInfo({ ...userInfo, message: text })}
+          placeholder="상태메세지"
+          multiline
+          numberOfLines={3}
         />
-        <TouchableOpacity>
-          <Icon name="content-copy" size={20} color="#000" />
-        </TouchableOpacity>
       </View>
-
-      {/* 하단의 탭 네비게이터는 여기에 포함되지 않았습니다. */}
+      <TouchableOpacity style={styles.menuItem} onPress={handleMyInfo}>
+        <Text style={styles.menuText}>내정보</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
+        <Text style={styles.menuText}>환경설정</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleVulnerableCertification}>
+        <Text style={styles.menuText}>취약계층인증</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+        <Text style={styles.menuText}>로그아웃</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -63,13 +157,176 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
   },
-  editButton: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 5,
+  infoBox: {
+    padding: 16,
   },
-  editButtonText: {
-    fontSize: 14,
+  bioInput: {
+    borderWidth: 3,
+    borderColor: 'gray',
+    padding: 10,
+    marginBottom: 16,
+  },
+  menuItem: {
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+  },
+  menuText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+});
+
+export default ProfileScreen;*/
+
+
+
+import React, { useContext, useState, useEffect } from 'react';
+import axios from 'axios';
+import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
+import { AppContext } from '../AppContext';
+import { launchImageLibrary } from 'react-native-image-picker';
+
+const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
+  const { apiUrl, id } = useContext(AppContext); // AppContext에서 userId를 가져옴
+  const [profileImage, setProfileImage] = useState(null);
+  const [userInfo, setUserInfo] = useState({
+    nickname: '',
+    message: ''
+  });
+
+
+
+  const handleLogout = () => {
+    // 사용자 로그아웃 처리
+    setIsLoggedIn(false);
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'LoginScreen' }],
+    });
+  };
+
+  const handleMyInfo = () => {
+    navigation.navigate('MyInfoScreen');
+  };
+
+  const handleSettings = () => {
+    navigation.navigate('SettingsScreen');
+  };
+
+  const handleVulnerableCertification = () => {
+    navigation.navigate('VulnerableCertificationScreen');
+  };
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (!id) {
+        console.log('No user ID available');
+        return;
+      }
+      try {
+        const url = `${apiUrl}/users/${id}`; // ID를 이용하여 특정 유저의 정보 요청
+        const response = await axios.get(url);
+        if (response.data) {
+          setUserInfo({
+            nickname: response.data.nickname,
+            message: response.data.message
+          });
+          if (response.data.profileImage) {
+            setProfileImage(response.data.profileImage);
+          }
+        }
+      } catch (error) {
+        console.error('Failed to fetch user info:', error);
+      }
+    };
+
+    fetchUserInfo();
+  }, [apiUrl, id]);
+
+  const handleChoosePhoto = () => {
+    const options = { mediaType: 'photo', quality: 1, includeBase64: false };
+    launchImageLibrary(options, (response) => {
+      if (response.didCancel) {
+        console.log('User cancelled image picker');
+      } else if (response.errorCode) {
+        console.log('ImagePicker Error: ', response.errorMessage);
+      } else {
+        const source = { uri: response.assets[0].uri };
+        setProfileImage(source.uri);
+      }
+    });
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <View style={styles.profileHeader}>
+        <TouchableOpacity onPress={handleChoosePhoto}>
+          <Image
+            source={profileImage ? { uri: profileImage } : require('../assets/logo.png')}
+            style={styles.profileImage}
+          />
+        </TouchableOpacity>
+        <View style={styles.profileTitle}>
+          <TextInput
+            style={styles.userName}
+            value={userInfo.nickname}
+            onChangeText={(text) => setUserInfo({ ...userInfo, nickname: text })}
+            placeholder="닉네임"
+          />
+        </View>
+      </View>
+      <View style={styles.infoBox}>
+        <TextInput
+          style={[styles.bioInput, { height: 80 }]}
+          value={userInfo.message}
+          onChangeText={(text) => setUserInfo({ ...userInfo, message: text })}
+          placeholder="상태메세지"
+          multiline
+          numberOfLines={3}
+        />
+      </View>
+      <TouchableOpacity style={styles.menuItem} onPress={handleMyInfo}>
+        <Text style={styles.menuText}>내정보</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
+        <Text style={styles.menuText}>환경설정</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleVulnerableCertification}>
+        <Text style={styles.menuText}>취약계층인증</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={handleLogout}>
+        <Text style={styles.menuText}>로그아웃</Text>
+      </TouchableOpacity>
+    </ScrollView>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    padding: 16,
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+  },
+  profileTitle: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 10,
+  },
+  userName: {
+    fontSize: 18,
+    fontWeight: 'bold',
   },
   infoBox: {
     padding: 16,
@@ -80,31 +337,18 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 16,
   },
-  section: {
+  menuItem: {
     padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
   },
-  sectionTitle: {
-    fontSize: 16,
+  menuText: {
+    fontSize: 18,
     fontWeight: 'bold',
   },
-  infoText: {
-    fontSize: 14,
-    color: 'gray',
-    marginBottom: 8,
-  },
-  copyRightBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-  },
-  copyRightInput: {
-    flex: 1,
-    borderWidth: 1,
-    borderColor: 'gray',
-    padding: 10,
-    marginRight: 10,
-  },
-  // 다른 스타일 요소를 여기에 추가합니다.
 });
 
 export default ProfileScreen;
+
+
+
