@@ -1,46 +1,100 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, ScrollView, StyleSheet } from 'react-native';
 
-const regions = [
-  { name: '서울', districts: ['강남구', '강동구', '강북구', '강서구', '관악구'] },
-  { name: '인천', districts: ['강화군', '계양구'] },
-  { name: '대전', districts: ['대덕구', '동구'] },
-  // 다른 지역들도 여기에 추가...
-];
+function RegionScreen({ navigation }) {
+  const [regions, setRegions] = useState([]);
+  const [selectedRegion, setSelectedRegion] = useState(null);
+  const [subregions, setSubregions] = useState([]);
 
-const RegionScreen = () => {
-  const navigation = useNavigation();
+  useEffect(() => {
+    fetch('http://20.39.190.194/regions/')
+      .then(response => response.json())
+      .then(data => setRegions(data.unique_firsts))
+      .catch(error => console.error('Error fetching data: ', error));
+  }, []);
 
-  const handlePress = (regionName) => {
-    // 'RegionPosts' 스크린으로 네비게이션하며, 선택된 지역 이름을 파라미터로 전달
-    navigation.navigate('RegionPosts', { regionName });
+  const handleRegionSelect = (region) => {
+    setSelectedRegion(region.first);
+    setSubregions(region.second);
+  };
+
+  const handleSubregionSelect = (subregion) => {
+    navigation.navigate('FundBoard', { region: selectedRegion, subregion });
   };
 
   return (
-    <ScrollView style={styles.container}>
-      {regions.map((region, index) => (
-        <TouchableOpacity key={index} style={styles.regionItem} onPress={() => handlePress(region.name)}>
-          <Text style={styles.regionText}>{region.name}</Text>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
+    <View style={styles.container}>
+      <View style={styles.column}>
+        
+        <ScrollView>
+          {regions.map(region => (
+            <TouchableOpacity
+              key={region.first}
+              style={[styles.regionItem, { backgroundColor: selectedRegion === region.first ? '#FFFFFF' : '#F0F0F0' }]}
+              onPress={() => handleRegionSelect(region)}
+            >
+              <Text style={styles.regionText}>{region.first}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
+      {subregions.length > 0 && (
+        <View style={styles.column}>
+          
+          <ScrollView>
+            {subregions.map(subregion => (
+              <TouchableOpacity
+                key={subregion}
+                style={styles.regionItem}
+                onPress={() => handleSubregionSelect(subregion)}
+              >
+                <Text style={styles.regionText}>{subregion}</Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+    </View>
   );
-};
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF'
+  },
+  column: {
+    flex: 1,
+    paddingHorizontal: 10
+  },
+  headerText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginVertical: 20,
+    color: '#333'
   },
   regionItem: {
-    padding: 15,
+    paddingVertical: 15,
+    paddingHorizontal: 10,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc'
+    borderBottomColor: '#ccc',
+    backgroundColor: '#F8F8F8',
+    borderRadius: 10,
+    marginVertical: 5,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5
   },
   regionText: {
-    fontSize: 18,
-    color: '#333'
+    fontSize: 16,
+    color: '#555'
   }
 });
 

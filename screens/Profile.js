@@ -1,24 +1,28 @@
-// 프로필 화면
-
-/*import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+//프로필 화면
+/*
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { AppContext } from '../AppContext';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import axios from 'axios';
+import ImageResizer from 'react-native-image-resizer';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
-  const { apiUrl } = useContext(AppContext);
-  const [profileImage, setProfileImage] = useState(null);
-  const [userInfo, setUserInfo] = useState({
-    nickname: '',
-    message: ''
-  });
+  const {
+    id, // 사용자 ID를 AppContext에서 추가로 가져와야 합니다.
+    nickname,
+    message,
+    setNickname,
+    setMessage,
+    profileimage,
+    setProfileimage,
+    apiUrl
+  } = useContext(AppContext);
+
 
   const handleLogout = () => {
-    // 사용자 로그아웃 처리
-    setIsLoggedIn(false);  // 로그인 상태를 false로 설정
-
-    // 모든 스택을 리셋하고 로그인 화면으로 이동
+    setIsLoggedIn(false);
     navigation.reset({
       index: 0,
       routes: [{ name: 'LoginScreen' }],
@@ -26,65 +30,53 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
   };
   
   const handleMyInfo = () => {
-    // 내정보 화면으로 이동
     navigation.navigate('MyInfoScreen');
   };
 
   const handleSettings = () => {
-    // 환경설정 화면으로 이동
     navigation.navigate('SettingsScreen');
   };
 
   const handleVulnerableCertification = () => {
-    // 취약계층 인증 화면으로 이동
     navigation.navigate('VulnerableCertificationScreen');
   };
-
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      try {
-        const url = `${apiUrl}/users/`; // Simplified URL assuming 'users' endpoint lists users
-        const response = await axios.get(url);
-        if (response.data && response.data.length > 0 ) {
-          const userData = response.data[0];
-          setUserInfo({
-            nickname: userData.nickname,
-            message: userData.message
-          });
-          if (userData.profileImage) {
-            setProfileImage(userData.profileImage);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-        console.error('Request made to:', url);
-        if (error.response) {
-          console.error('Error status:', error.response.status);
-          console.error('Error data:', error.response.data);
-        } else if (error.request) {
-          console.error('No response received');
-        } else {
-          console.error('Error message:', error.message);
-        }
-      }
-    };
   
-    fetchUserInfo();
-  }, [apiUrl]);
-  
+  const handleChoosePhoto = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("We need permission to access your photos!");
+      return;
+    }
 
-  const handleChoosePhoto = () => {
-    const options = { mediaType: 'photo', quality: 1, includeBase64: false };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setProfileImage(source.uri);
-      }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
     });
+
+    if (!result.cancelled) {
+      const fileUri = result.assets[0].uri;
+      const fileName = fileUri.split('/').pop();
+      const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
+      const azureUrl = `https://songilstorage.blob.core.windows.net/profile/${fileName}?${profileToken}`;
+
+      try {
+        const fileContent = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+        const fileArrayBuffer = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
+        await axios.put(azureUrl, fileArrayBuffer, {
+          headers: {
+            'x-ms-blob-type': 'BlockBlob',
+            'Content-Type': 'image/jpeg'
+          }
+        });
+        await axios.patch(`${apiUrl}/user/update/image`, {
+          id: id,
+          new_image: azureUrl
+        });
+        setProfileimage(azureUrl);
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
   };
 
   return (
@@ -92,15 +84,15 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
       <View style={styles.profileHeader}>
         <TouchableOpacity onPress={handleChoosePhoto}>
           <Image
-            source={profileImage ? { uri: profileImage } : require('../assets/logo.png')}
+            source={profileimage ? { uri: profileimage } : require('../assets/logo.png')}
             style={styles.profileImage}
           />
         </TouchableOpacity>
         <View style={styles.profileTitle}>
           <TextInput
             style={styles.userName}
-            value={userInfo.nickname}
-            onChangeText={(text) => setUserInfo({ ...userInfo, nickname: text })}
+            value={nickname}
+            onChangeText={setNickname}
             placeholder="닉네임"
           />
         </View>
@@ -108,8 +100,8 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
       <View style={styles.infoBox}>
         <TextInput
           style={[styles.bioInput, { height: 80 }]}
-          value={userInfo.message}
-          onChangeText={(text) => setUserInfo({ ...userInfo, message: text })}
+          value={message}
+          onChangeText={setMessage}
           placeholder="상태메세지"
           multiline
           numberOfLines={3}
@@ -179,33 +171,36 @@ const styles = StyleSheet.create({
 
 export default ProfileScreen;*/
 
-
-
 import React, { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { AppContext } from '../AppContext';
-import { launchImageLibrary } from 'react-native-image-picker';
+import * as ImagePicker from 'expo-image-picker';
+import * as FileSystem from 'expo-file-system';
+import axios from 'axios';
+import ImageResizer from 'react-native-image-resizer';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
-  const { apiUrl, id } = useContext(AppContext); // AppContext에서 userId를 가져옴
-  const [profileImage, setProfileImage] = useState(null);
-  const [userInfo, setUserInfo] = useState({
-    nickname: '',
-    message: ''
-  });
-
+  const {
+    id, // 사용자 ID를 AppContext에서 추가로 가져와야 합니다.
+    nickname,
+    message,
+    setNickname,
+    setMessage,
+    profileimage,
+    setProfileimage,
+    apiUrl,
+    azureUrl
+  } = useContext(AppContext);
 
 
   const handleLogout = () => {
-    // 사용자 로그아웃 처리
     setIsLoggedIn(false);
     navigation.reset({
       index: 0,
       routes: [{ name: 'LoginScreen' }],
     });
   };
-
+  
   const handleMyInfo = () => {
     navigation.navigate('MyInfoScreen');
   };
@@ -217,61 +212,63 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
   const handleVulnerableCertification = () => {
     navigation.navigate('VulnerableCertificationScreen');
   };
+  
+  const handleChoosePhoto = async () => {
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (permissionResult.granted === false) {
+      alert("We need permission to access your photos!");
+      return;
+    }
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!id) {
-        console.log('No user ID available');
-        return;
-      }
-      try {
-        const url = `${apiUrl}/users/${id}`; // ID를 이용하여 특정 유저의 정보 요청
-        const response = await axios.get(url);
-        if (response.data) {
-          setUserInfo({
-            nickname: response.data.nickname,
-            message: response.data.message
-          });
-          if (response.data.profileImage) {
-            setProfileImage(response.data.profileImage);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-      }
-    };
-
-    fetchUserInfo();
-  }, [apiUrl, id]);
-
-  const handleChoosePhoto = () => {
-    const options = { mediaType: 'photo', quality: 1, includeBase64: false };
-    launchImageLibrary(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled image picker');
-      } else if (response.errorCode) {
-        console.log('ImagePicker Error: ', response.errorMessage);
-      } else {
-        const source = { uri: response.assets[0].uri };
-        setProfileImage(source.uri);
-      }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 1,
     });
+
+    if (!result.cancelled) {
+      const fileUri = result.assets[0].uri;
+      const fileName = fileUri.split('/').pop();
+      const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
+      const azureUrl = `https://songilstorage.blob.core.windows.net/profile/${fileName}?${profileToken}`;
+
+      try {
+        const fileContent = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
+        const fileArrayBuffer = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
+        await axios.put(azureUrl, fileArrayBuffer, {
+          headers: {
+            'x-ms-blob-type': 'BlockBlob',
+            'Content-Type': 'image/jpeg'
+          }
+        });
+        
+        await axios.patch(`${apiUrl}/user/update/image`, {
+          id: id,
+          new_image: fileName
+        });
+        setProfileimage(fileName);
+        alert("변경");
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
   };
+
+
 
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <TouchableOpacity onPress={handleChoosePhoto}>
           <Image
-            source={profileImage ? { uri: profileImage } : require('../assets/logo.png')}
+            source={profileimage ? { uri: azureUrl+"/profile/"+setProfileimage } : require('../assets/logo.png')}
             style={styles.profileImage}
           />
         </TouchableOpacity>
         <View style={styles.profileTitle}>
           <TextInput
             style={styles.userName}
-            value={userInfo.nickname}
-            onChangeText={(text) => setUserInfo({ ...userInfo, nickname: text })}
+            value={nickname}
+            onChangeText={setNickname}
             placeholder="닉네임"
           />
         </View>
@@ -279,8 +276,8 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
       <View style={styles.infoBox}>
         <TextInput
           style={[styles.bioInput, { height: 80 }]}
-          value={userInfo.message}
-          onChangeText={(text) => setUserInfo({ ...userInfo, message: text })}
+          value={message}
+          onChangeText={setMessage}
           placeholder="상태메세지"
           multiline
           numberOfLines={3}
@@ -349,6 +346,4 @@ const styles = StyleSheet.create({
 });
 
 export default ProfileScreen;
-
-
 
