@@ -366,9 +366,10 @@ const handleSubmit = async () => {
           <Text style={styles.genderButtonText}>남자</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.genderButton, gender === 'W' ? styles.selected : styles.notSelected]}
-        >
-          <Text style={styles.genderButtonText}>여자</Text>
+            style={[styles.genderButton, gender === 'W' ? styles.selected : styles.notSelected]}
+            onPress={() => setGender('W')}  // 'W'로 성별 설정하는 이벤트 핸들러 추가
+          >
+            <Text style={styles.genderButtonText}>여자</Text>
         </TouchableOpacity>
       </View>
       {loading ? (

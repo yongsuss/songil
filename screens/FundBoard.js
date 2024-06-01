@@ -1,10 +1,12 @@
 //지역 게시판
+
+
 /*
-import React, {, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
-function FundBoard({ route }) {
+function FundBoard({ navigation, route }) {
   const { region, subregion } = route.params;
   const [boards, setBoards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -22,13 +24,14 @@ function FundBoard({ route }) {
     .then(response => response.json())
     .then(data => {
       if (data.boards) {
-        setBoards(data.boards);
+        setBoards(data.boards.map(item => ({ ...item.board, nickname: item.nickname }))); // 데이터 구조 조정
       } else {
         setBoards([]);
       }
     })
     .catch(error => console.error('Error loading boards:', error));
   }, [region, subregion]);
+  
 
   const getCategory = (category) => {
     switch (category) {
@@ -41,10 +44,15 @@ function FundBoard({ route }) {
   };
 
   const filteredBoards = boards.filter(board => 
-    (board.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    board.text.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (selectedCategory === 'all' || board.category === parseInt(selectedCategory))
+    (board.title?.toLowerCase().includes(searchQuery.toLowerCase()) || // 제목 검색 필터
+     board.text?.toLowerCase().includes(searchQuery.toLowerCase())) && // 내용 검색 필터
+    (selectedCategory === 'all' || board.category === parseInt(selectedCategory)) // 카테고리 필터
   );
+  
+
+  const navigateToBulletin = (board) => {
+    navigation.navigate('Bulletin', { board });
+  };
 
   return (
     <ScrollView style={styles.container}>
@@ -56,7 +64,7 @@ function FundBoard({ route }) {
       />
       <Picker
         selectedValue={selectedCategory}
-        onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}
+        onValueChange={setSelectedCategory}
         style={styles.picker}
       >
         <Picker.Item label="모든 카테고리" value="all" />
@@ -66,10 +74,134 @@ function FundBoard({ route }) {
         <Picker.Item label="한부모가족" value="3" />
       </Picker>
       {filteredBoards.map((board, index) => (
-        <View key={index} style={styles.boardItem}>
+  <TouchableOpacity key={index} style={styles.boardItem} onPress={() => navigateToBulletin(board)}>
+    <Text style={styles.boardTitle}>{board.title}</Text>
+    <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategory(board.category)}</Text>
+  </TouchableOpacity>
+))}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#fff',
+    padding: 10
+  },
+  boardItem: {
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#ccc',
+    marginBottom: 10
+  },
+  boardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold'
+  },
+  nickname: {
+    fontSize: 14,
+    color: '#666',
+    marginBottom: 5
+  },
+  searchInput: {
+    fontSize: 16,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  },
+  picker: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+  }
+});
+
+export default FundBoard;
+/*
+import React, { useState, useEffect } from 'react';
+import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
+
+function FundBoard({ navigation, route }) {
+  const { region, subregion } = route.params;
+  const [boards, setBoards] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  useEffect(() => {
+    const regionQuery = encodeURIComponent(region + (subregion ? ` ${subregion}` : ''));
+    let url = `http://20.39.190.194/board/region/${regionQuery}`;
+    if (selectedCategory !== 'all') {
+      url = `http://20.39.190.194/board/category/${selectedCategory}`;
+    }
+  
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log(data); // 데이터 구조 확인을 위해 로깅
+      if (Array.isArray(data)) { // data가 배열인지 확인
+        setBoards(data.map(item => ({ ...item.board, nickname: item.nickname })));
+      } else if (data.boards && Array.isArray(data.boards)) { // data.boards가 배열인 경우
+        setBoards(data.boards.map(item => ({ ...item.board, nickname: item.nickname })));
+      } else {
+        setBoards([]); // 배열이 아닐 경우 빈 배열 설정
+      }
+    })
+    .catch(error => {
+      console.error('Error loading boards:', error);
+      setBoards([]); // 오류 발생 시 빈 배열 설정
+    });
+  }, [selectedCategory, region, subregion]); // 의존성 배열에 region, subregion 추가
+
+  const getCategoryLabel = (category) => {
+    switch (category) {
+      case 0: return "기초생활수급자";
+      case 1: return "차상위계층수급자";
+      case 2: return "장애인";
+      case 3: return "한부모가족";
+      default: return "취약계층 정보 없음";
+    }
+  };
+
+  const navigateToBulletin = (board) => {
+    navigation.navigate('Bulletin', { board });
+  };
+
+  return (
+    <ScrollView style={styles.container}>
+      <TextInput
+        style={styles.searchInput}
+        placeholder="게시글 검색..."
+        value={searchQuery}
+        onChangeText={setSearchQuery}
+      />
+      <Picker
+        selectedValue={selectedCategory}
+        onValueChange={setSelectedCategory}
+        style={styles.picker}
+      >
+        <Picker.Item label="모든 카테고리" value="all" />
+        <Picker.Item label="기초생활수급자" value="0" />
+        <Picker.Item label="차상위계층수급자" value="1" />
+        <Picker.Item label="장애인" value="2" />
+        <Picker.Item label="한부모가족" value="3" />
+      </Picker>
+      {boards.map((board, index) => (
+        <TouchableOpacity key={index} style={styles.boardItem} onPress={() => navigateToBulletin(board)}>
           <Text style={styles.boardTitle}>{board.title}</Text>
-          <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategory(board.category)}</Text>
-        </View>
+          <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategoryLabel(board.category)}</Text>
+        </TouchableOpacity>
       ))}
     </ScrollView>
   );
@@ -116,7 +248,7 @@ const styles = StyleSheet.create({
 export default FundBoard;*/
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 
 function FundBoard({ navigation, route }) {
@@ -127,7 +259,12 @@ function FundBoard({ navigation, route }) {
 
   useEffect(() => {
     const regionQuery = encodeURIComponent(region + (subregion ? ` ${subregion}` : ''));
-    fetch(`http://20.39.190.194/board/region/${regionQuery}`, {
+    let url = `http://20.39.190.194/board/region/${regionQuery}`;
+    if (selectedCategory !== 'all') {
+      url = `http://20.39.190.194/board/category/${selectedCategory}`;
+    }
+  
+    fetch(url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -136,15 +273,22 @@ function FundBoard({ navigation, route }) {
     })
     .then(response => response.json())
     .then(data => {
-      if (data.boards) {
-        setBoards(data.boards);
+      console.log(data); // 데이터 구조 확인을 위해 로깅
+      if (Array.isArray(data)) { // data가 배열인지 확인
+        setBoards(data.map(item => ({ ...item.board, nickname: item.nickname })));
+      } else if (data.boards && Array.isArray(data.boards)) { // data.boards가 배열인 경우
+        setBoards(data.boards.map(item => ({ ...item.board, nickname: item.nickname })));
       } else {
-        setBoards([]);
+        setBoards([]); // 배열이 아닐 경우 빈 배열 설정
       }
     })
-    .catch(error => console.error('Error loading boards:', error));
-  }, [region, subregion]);
-  const getCategory = (category) => {
+    .catch(error => {
+      console.error('Error loading boards:', error);
+      setBoards([]); // 오류 발생 시 빈 배열 설정
+    });
+  }, [selectedCategory, region, subregion]); // 의존성 배열에 region, subregion 추가
+
+  const getCategoryLabel = (category) => {
     switch (category) {
       case 0: return "기초생활수급자";
       case 1: return "차상위계층수급자";
@@ -153,12 +297,6 @@ function FundBoard({ navigation, route }) {
       default: return "취약계층 정보 없음";
     }
   };
-
-  const filteredBoards = boards.filter(board => 
-    (board.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    board.text.toLowerCase().includes(searchQuery.toLowerCase())) &&
-    (selectedCategory === 'all' || board.category === parseInt(selectedCategory))
-  );
 
   const navigateToBulletin = (board) => {
     navigation.navigate('Bulletin', { board });
@@ -174,7 +312,7 @@ function FundBoard({ navigation, route }) {
       />
       <Picker
         selectedValue={selectedCategory}
-        onValueChange={(itemValue, itemIndex) => setSelectedCategory(itemValue)}
+        onValueChange={setSelectedCategory}
         style={styles.picker}
       >
         <Picker.Item label="모든 카테고리" value="all" />
@@ -186,7 +324,7 @@ function FundBoard({ navigation, route }) {
       {boards.map((board, index) => (
         <TouchableOpacity key={index} style={styles.boardItem} onPress={() => navigateToBulletin(board)}>
           <Text style={styles.boardTitle}>{board.title}</Text>
-          <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategory(board.category)}</Text>
+          <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategoryLabel(board.category)}</Text>
         </TouchableOpacity>
       ))}
     </ScrollView>
@@ -196,14 +334,42 @@ function FundBoard({ navigation, route }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f5f5f5',
     padding: 10
   },
+  form: {
+    padding: 20
+  },
+  input: {
+    backgroundColor: '#ffffff',
+    marginBottom: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    borderRadius: 10,
+    fontSize: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
+  },
+  picker: {
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    backgroundColor: '#ffffff',
+  },
   boardItem: {
+    backgroundColor: '#ffffff',
     padding: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
-    marginBottom: 10
+    marginBottom: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3
   },
   boardTitle: {
     fontSize: 18,
@@ -211,23 +377,7 @@ const styles = StyleSheet.create({
   },
   nickname: {
     fontSize: 14,
-    color: '#666',
-    marginBottom: 5
-  },
-  searchInput: {
-    fontSize: 16,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
-  },
-  picker: {
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    color: '#666'
   }
 });
 
