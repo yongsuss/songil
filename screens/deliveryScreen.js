@@ -1,18 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { View, Text, Picker, Button, StyleSheet } from 'react-native';
+import { AppContext } from '../AppContext'; // AppContext를 import 합니다.
 
-export default function deliveryScreen() {
+export default function DeliveryScreen() {
+  const context = useContext(AppContext);
+
+  if (!context) {
+    return <Text>Loading...</Text>; // context가 null 또는 undefined일 때의 처리
+  }
+
+  const {
+    id, // 사용자 ID를 AppContext에서 추가로 가져와야 합니다.
+    nickname,
+    message,
+    setNickname,
+    setMessage,
+    profileimage,
+    setProfileimage,
+    apiUrl,
+    azureUrl,
+    address
+  } = context;
+
   const [selectedSize, setSelectedSize] = useState('xs');
-  const [selectedLocation, setSelectedLocation] = useState('seoul');
+  const [selectedLocation, setSelectedLocation] = useState(address[0]?.value || '');
 
-  const locations = [
-    // 지역 불러오기
-    { label: '서울', value: 'seoul' },
-    { label: '부산', value: 'busan' },
-    { label: '대구', value: 'daegu' },
-    { label: '인천', value: 'incheon' },
-  ];
-
+  // address 정보를 이용해 locations 배열을 생성합니다.
+  const locations = address.map(addr => ({
+    label: addr.label,
+    value: addr.value
+  }));
+/*
   const handleCheckPrice = () => {
     // 가격 조회 로직
     console.log({
@@ -20,7 +38,7 @@ export default function deliveryScreen() {
       selectedLocation
     });
   };
-
+*/
   return (
     <View style={styles.container}>
       <Text style={styles.title}>퀵 배송</Text>

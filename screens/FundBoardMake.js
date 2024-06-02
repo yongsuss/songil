@@ -114,6 +114,7 @@ import React, { useState, useContext } from 'react';
 import { View, Text, TextInput, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { AppContext } from '../AppContext';
 
+
 function FundBoardMake({ navigation }) {
     const { apiUrl, boardToken, id, address, nickname } = useContext(AppContext);
     const [title, setTitle] = useState('');

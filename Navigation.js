@@ -279,6 +279,7 @@ import RegionScreen from './screens/RegionScreen'; //기부게시글-지역선�
 import MyInfoScreen from './screens/MyInfoScreen'; //프로필-내정보
 import SettingsScreen from './screens/SettingsScreen' //프로필-환경설정
 import VulnerableCertificationScreen from './screens/VulnerableCertificationScreen' //프로필-취약계층인증
+import DeliveryScreen from './screens/deliveryScreen';  //배송 정보
 import { AppContext } from './AppContext'; // AppContext 가져오기
 
 
@@ -428,6 +429,11 @@ function FundBoardStack() {
         name="Bulletin" 
         component={Bulletin}
         options={{ headerTitle: '게시글', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="deliveryScreen" 
+        component={DeliveryScreen}
+        options={{ headerTitle: '배송 요청', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );

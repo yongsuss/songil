@@ -186,6 +186,9 @@ function Bulletin({ route, navigation }) {
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
+    const test = () => {
+        navigation.navigate('deliveryScreen');
+    };
 
     useEffect(() => {
         fetchComments();
@@ -300,6 +303,9 @@ function Bulletin({ route, navigation }) {
                     </View>
                 ))}
             </KeyboardAvoidingView>
+            <TouchableOpacity style={styles.button} onPress={test}>
+    <Text style={styles.menuText}>기부하기</Text>
+</TouchableOpacity>
         </ScrollView>
     );
 }
