@@ -10,15 +10,6 @@ export default function DeliveryScreen() {
   }
 
   const {
-    id,
-    nickname,
-    message,
-    setNickname,
-    setMessage,
-    profileimage,
-    setProfileimage,
-    apiUrl,
-    azureUrl,
     address
   } = context;
 

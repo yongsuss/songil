@@ -1,11 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import axios from 'axios';
+import { AppContext } from '../AppContext';
 import { View, Text, Image, StyleSheet, TouchableOpacity, ScrollView, ActivityIndicator, Button, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
-
-const SAS_TOKEN = "sp=racwdl&st=2024-05-29T06:44:54Z&se=2024-07-01T14:44:54Z&sv=2022-11-02&sr=c&sig=ImfE%2BtbeioOJiDquqKvYeon1CobFlfqkrWUz6pXSfw4%3D";
-const AZURE_URL = "https://songilstorage.blob.core.windows.net/document/";
 
 const VulnerableCertificationScreen = () => {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -14,7 +12,18 @@ const VulnerableCertificationScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showMessage, setShowMessage] = useState(false);
 
-  const choosePhoto = async () => {
+  const [d_num1, set_d_num1] = useState('');
+  const [d_num2, set_d_num2] = useState('');
+  const [d_num3, set_d_num3] = useState('');
+  const [d_num4, set_d_num4] = useState('');
+
+  const {
+    apiUrl,
+    azureUrl,
+    documentToken
+  } = useContext(AppContext);
+
+  const choosePhoto = async () => {//사진 선택
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
       Alert.alert("Permission required", "We need permission to access your photos!");
@@ -28,12 +37,13 @@ const VulnerableCertificationScreen = () => {
 
     if (!result.cancelled) {
       const fileUri = result.assets[0].uri;
+      const fileName = fileUri.split('/').pop();
       setSelectedImage(fileUri);
-      await uploadToAzure(fileUri);
+      await uploadToAzure(fileName);
     }
   };
 
-  const takePhoto = async () => {
+  const takePhoto = async () => {//사진 촬용
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
       alert("We need permission to access your camera!");
@@ -57,9 +67,9 @@ const VulnerableCertificationScreen = () => {
     }, 2000); // Show message for 2 seconds
   };
 
-  const uploadToAzure = async (uri) => {
+  const uploadToAzure = async (uri) => {//storage 이미지 업로드
     const fileName = uri.split('/').pop();
-    const azureUrl = `${AZURE_URL}${fileName}?${SAS_TOKEN}`;
+    const storageUrl = `${azureUrl}/document/${fileName}?${documentToken}`;
 
     const file = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
     const fileArrayBuffer = Uint8Array.from(atob(file), c => c.charCodeAt(0));
@@ -67,7 +77,7 @@ const VulnerableCertificationScreen = () => {
     setDocument(fileName);
 
     try {
-      await axios.put(azureUrl, fileArrayBuffer, { 
+      await axios.put(storageUrl, fileArrayBuffer, { 
         headers: {
           'x-ms-blob-type': 'BlockBlob',
           'Content-Type': 'image/jpeg',
@@ -79,13 +89,17 @@ const VulnerableCertificationScreen = () => {
     }
   };
 
-  const recognizeText = async (url) => {
+  const recognizeText = async () => {//문서번호 추출
     const requestBody = {
-      image_url: AZURE_URL+document // 전달된 url을 requestBody의 image_url에 설정
+      image_url: azureUrl+'/document/'+document // 전달된 url을 requestBody의 image_url에 설정
     };
   
     try {
-      const response = await axios.post('http://20.39.190.194/ocr/', requestBody);
+      const response = await axios.post(apiUrl+'/ocr', requestBody);
+      set_d_num1(response.data.document_number1);
+      set_d_num2(response.data.document_number2);
+      set_d_num3(response.data.document_number3);
+      set_d_num4(response.data.document_number4);
       return response.data;
     } catch (error) {
       console.error('Error recognizing text:', error);
@@ -97,13 +111,33 @@ const VulnerableCertificationScreen = () => {
     if (selectedImage) {
       setLoading(true);
       try {
-        const result = await recognizeText(document);
+        const result = await recognizeText();
         setOcrResult(result);
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
       }
+    }
+  };
+
+  const authDocument = async () => {
+    const requestBody = {
+      doc_ref_no1: d_num1,
+      doc_ref_no2: d_num2,
+      doc_ref_no3: d_num3,
+      doc_ref_no4: d_num4,
+      resident_number_front: "670108"
+    };
+
+    console.log(requestBody);
+
+    try {
+      const response = await axios.post(apiUrl+'/verify-document', requestBody);
+      return response.data;
+    } catch (error) {
+      console.error('Error recognizing text:', error);
+      throw error;
     }
   };
 
@@ -134,6 +168,9 @@ const VulnerableCertificationScreen = () => {
           <Button title="다시 촬영하기" onPress={() => setSelectedImage(null)} />
         </>
       )}
+      <TouchableOpacity style={styles.button} onPress={authDocument}>
+          <Text style={styles.buttonText}>인증하기</Text>
+        </TouchableOpacity>
     </ScrollView>
   );
 };
