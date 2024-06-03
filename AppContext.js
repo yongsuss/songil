@@ -14,11 +14,27 @@ const AppProvider = ({ children }) => {
   const [phone, setPhone] = useState(''); // 전화번호
   const [point, setPoint] = useState(0); // 포인트, 숫자로 초기화
   const [rank, setRank] = useState(0); // 등급, 숫자로 초기화
-  
+  const [address, setAddress] = useState(''); //주소
+  const [profileimage, setProfileimage] = useState('');
+  //const [resident, setResidnet] = useState(''); //
 
   const apiUrl = "http://20.39.190.194"; // API의 기본 URL
+  const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
+  const reviewToken = "sp=r&st=2024-05-29T06:46:47Z&se=2024-07-01T14:46:47Z&sv=2022-11-02&sr=c&sig=dbhijyXwC%2Fn72ZeX9sm2%2B9ks2Xnpb7Lo%2FbqvDwcUkfI%3D";
+  const boardToken = "sp=racwdl&st=2024-05-29T06:43:26Z&se=2024-07-01T14:43:26Z&sv=2022-11-02&sr=c&sig=aLJ0%2BeIYaXeYNURwV0%2FaKSfUlRyCcRoTRaH20HFXj%2Bo%3D";
+  const documentToken = "sp=racwdl&st=2024-05-29T06:44:54Z&se=2024-07-01T14:44:54Z&sv=2022-11-02&sr=c&sig=ImfE%2BtbeioOJiDquqKvYeon1CobFlfqkrWUz6pXSfw4%3D";
+  const fundraisingToken = "sp=racwdl&st=2024-05-29T06:45:29Z&se=2024-07-01T14:45:29Z&sv=2022-11-02&sr=c&sig=76EjXar4G7gpKncA2TqwiN53dyWymN1tKiGU6V9B%2FFs%3D";
+  const azureUrl = "https://songilstorage.blob.core.windows.net";
 
   const contextValue = {
+    profileimage,
+    setProfileimage,
+    profileToken,
+    reviewToken,
+    boardToken,
+    documentToken,
+    fundraisingToken,
+    azureUrl,
     id,
     setId,
     apiUrl,
@@ -42,6 +58,11 @@ const AppProvider = ({ children }) => {
     setPoint,
     rank, 
     setRank,
+    address,
+    setAddress,
+   // resident,
+    //setResidnet
+
   };
 
   return (
