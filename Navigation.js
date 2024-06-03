@@ -277,7 +277,8 @@ import SearchPasswordScreen from './screens/SearchPasswordScreen'; //비밀번�
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Icon 추가
 import RegionScreen from './screens/RegionScreen'; //기부게시글-지역선택
 import MyInfoScreen from './screens/MyInfoScreen'; //프로필-내정보
-import SettingsScreen from './screens/SettingsScreen' //프로필-환경설정
+import SettingsScreen from './screens/SettingsScreen'; //프로필-환경설정
+import DeliveryScreen from './screens/DeliveryScreen'; //게시글에서 기부하기 버튼누르면 들어가는 화면 
 import VulnerableCertificationScreen from './screens/VulnerableCertificationScreen' //프로필-취약계층인증
 import { AppContext } from './AppContext'; // AppContext 가져오기
 
@@ -428,6 +429,11 @@ function FundBoardStack() {
         name="Bulletin" 
         component={Bulletin}
         options={{ headerTitle: '게시글', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="DeliveryScreen" 
+        component={DeliveryScreen}
+        options={{ headerTitle: '기부하기:배송 화면', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
