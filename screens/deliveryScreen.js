@@ -1,6 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { View, Text, Picker, Button, StyleSheet } from 'react-native';
-import { AppContext } from '../AppContext'; // AppContext를 import 합니다.
+import { AppContext } from '../AppContext';
 
 export default function DeliveryScreen() {
   const context = useContext(AppContext);
@@ -10,7 +10,7 @@ export default function DeliveryScreen() {
   }
 
   const {
-    id, // 사용자 ID를 AppContext에서 추가로 가져와야 합니다.
+    id,
     nickname,
     message,
     setNickname,
@@ -25,14 +25,13 @@ export default function DeliveryScreen() {
   const [selectedSize, setSelectedSize] = useState('xs');
   const [selectedLocation, setSelectedLocation] = useState(address[0]?.value || '');
 
-  // address 정보를 이용해 locations 배열을 생성합니다.
   const locations = address.map(addr => ({
     label: addr.label,
     value: addr.value
   }));
-/*
+
+  /*
   const handleCheckPrice = () => {
-    // 가격 조회 로직
     console.log({
       selectedSize,
       selectedLocation

@@ -9,7 +9,7 @@ const reviews = [
   // 추가적인 리뷰 데이터...
 ];
 
-export default function reviewCheckScreen() {
+export default function ReviewCheckScreen() {
   const [selectedReview, setSelectedReview] = useState(null);
 
   const handleReviewPress = (review) => {

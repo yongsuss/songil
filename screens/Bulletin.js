@@ -187,7 +187,7 @@ function Bulletin({ route, navigation }) {
     const [commentText, setCommentText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const test = () => {
-        navigation.navigate('deliveryScreen');
+        navigation.navigate('DeliveryScreen');
     };
 
     useEffect(() => {
