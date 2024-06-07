@@ -10,7 +10,6 @@ const VulnerableCertificationScreen = () => {
   const [document, setDocument] = useState(null);
   const [ocrResult, setOcrResult] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [showMessage, setShowMessage] = useState(false);
 
   const [d_num1, set_d_num1] = useState('');
   const [d_num2, set_d_num2] = useState('');
@@ -39,7 +38,7 @@ const VulnerableCertificationScreen = () => {
       const fileUri = result.assets[0].uri;
       const fileName = fileUri.split('/').pop();
       setSelectedImage(fileUri);
-      await uploadToAzure(fileName);
+      //await uploadToAzure(fileName);
     }
   };
 
@@ -50,10 +49,6 @@ const VulnerableCertificationScreen = () => {
       return;
     }
 
-    // Show message before launching the camera
-    setShowMessage(true);
-    setTimeout(async () => {
-      setShowMessage(false);
       const result = await ImagePicker.launchCameraAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
         quality: 1,
@@ -62,9 +57,8 @@ const VulnerableCertificationScreen = () => {
       if (!result.cancelled) {
         const fileUri = result.assets[0].uri;
         setSelectedImage(fileUri);
-        await uploadToAzure(fileUri);
+        //await uploadToAzure(fileUri);
       }
-    }, 2000); // Show message for 2 seconds
   };
 
   const uploadToAzure = async (uri) => {//storage 이미지 업로드
@@ -121,7 +115,7 @@ const VulnerableCertificationScreen = () => {
     }
   };
 
-  const authDocument = async () => {
+  const authDocument = async () => {//문서번호 인증
     const requestBody = {
       doc_ref_no1: d_num1,
       doc_ref_no2: d_num2,
@@ -143,22 +137,34 @@ const VulnerableCertificationScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
+      <View style={{flexDirection: "column"}}>
+        <View style={styles.documentTextContainer}>
+        {selectedImage ? (
+          <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+        ) : (
+            <Text style={styles.documentText}>가장자리에 맞춰주세요</Text>
+        )}
+        </View>
+      </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity style={styles.button} onPress={choosePhoto}>
-          <Text style={styles.buttonText}>사진 가져오기</Text>
+          <Text style={styles.buttonText}>사진 선택</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.button} onPress={takePhoto}>
-          <Text style={styles.buttonText}>촬영하기</Text>
-        </TouchableOpacity>
+        {
+          selectedImage ? (
+            <TouchableOpacity style={styles.button} onPress={() => setSelectedImage(null)}>
+              <Text style={styles.buttonText}>다시 촬영</Text>
+            </TouchableOpacity>
+          ) : (
+            <TouchableOpacity style={styles.button} onPress={takePhoto}>
+            <Text style={styles.buttonText}>촬영하기</Text>
+          </TouchableOpacity>
+        )}
       </View>
-      {showMessage && (
-        <View style={styles.messageContainer}>
-          <Text style={styles.messageText}>화면에 맞춰 촬영해 주세요</Text>
-        </View>
-      )}
+      
       {selectedImage && (
         <>
-          <Image source={{ uri: selectedImage }} style={styles.selectedImage} />
+          
           <TouchableOpacity style={styles.button} onPress={handleOCR}>
             <Text style={styles.buttonText}>문서 번호 가져오기</Text>
             <Text style={styles.buttonSubText}>*촬영 완료 후 1초 후 눌러주세요*</Text>
@@ -202,23 +208,30 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textAlign: 'center'
   },
-  messageContainer: {
-    alignItems: 'center',
-    marginVertical: 10,
-  },
-  messageText: {
-    color: 'red',
-    fontSize: 18,
+  resultText: {
+    marginTop: 16,
+    textAlign: 'center',
   },
   selectedImage: {
     width: '100%',
     height: 400,
     resizeMode: 'contain',
-    marginTop: 20,
+    borderRadius: 8
   },
-  resultText: {
-    marginTop: 16,
-    textAlign: 'center',
+  documentTextContainer: {
+    borderWidth: 2, // 테두리 두께 2
+    borderColor: 'black', // 테두리 색상 검정
+    borderRadius: 8, // 테두리 둥글기 8
+    height: 400,
+    justifyContent: 'center',
+    marginRight: 20,
+    marginLeft: 20,
+    marginTop: 20
+  },
+  documentText: {
+    fontSize: 24, // 글자 크기 24
+    fontWeight: 'bold', // 글자 굵기 bold
+    textAlign: 'center', // 가운데 정렬
   },
 });
 
