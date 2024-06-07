@@ -277,7 +277,8 @@ import SearchPasswordScreen from './screens/SearchPasswordScreen'; //비밀번�
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Icon 추가
 import RegionScreen from './screens/RegionScreen'; //기부게시글-지역선택
 import MyInfoScreen from './screens/MyInfoScreen'; //프로필-내정보
-import SettingsScreen from './screens/SettingsScreen' //프로필-환경설정
+import SettingsScreen from './screens/SettingsScreen'; //프로필-환경설정
+import DeliveryScreen from './screens/DeliveryScreen'; //게시글에서 기부하기 버튼누르면 들어가는 화면 
 import VulnerableCertificationScreen from './screens/VulnerableCertificationScreen' //프로필-취약계층인증
 //import DeliveryScreen from './screens/DeliveryScreen'; //배송
 import { AppContext } from './AppContext'; // AppContext 가져오기
@@ -433,7 +434,7 @@ function FundBoardStack() {
       <Stack.Screen
         name="DeliveryScreen" 
         component={DeliveryScreen}
-        options={{ headerTitle: '배송 요청', headerTitleAlign: 'center' }}
+        options={{ headerTitle: '기부하기:배송 화면', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
@@ -482,9 +483,7 @@ function TabGroup({ setIsLoggedIn }) {
                   } else if (route.name === '프로필') {
                     iconName = focused ? 'account-circle' : 'account-circle-outline';
                   } 
-                   // 다른 탭에 대한 iconName 설정을 계속 추가...
-                  
-                  // 아이콘 크기와 색상을 조정할 수 있습니다.
+                   
                   return <Icon name={iconName} size={size} color={color} style={{ backgroundColor: 'red' }}/>;
               },
               tabBarLabelPosition: 'below-icon', // 아이콘 아래에 라벨 표시

@@ -16,7 +16,7 @@ const AppProvider = ({ children }) => {
   const [rank, setRank] = useState(0); // 등급, 숫자로 초기화
   const [address, setAddress] = useState(''); //주소
   const [profileimage, setProfileimage] = useState('');
-  //const [resident, setResidnet] = useState(''); //
+  const [resident, setResident] = useState(''); //
 
   const apiUrl = "http://20.39.190.194"; // API의 기본 URL
   const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
@@ -60,8 +60,8 @@ const AppProvider = ({ children }) => {
     setRank,
     address,
     setAddress,
-   // resident,
-    //setResidnet
+    resident,
+    setResident
 
   };
 
