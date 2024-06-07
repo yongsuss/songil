@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, Alert, Picker } from 'react-native';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
 import axios from 'axios';
+import { Picker } from '@react-native-picker/picker';
 
 const AllFundMake = () => {
     const [formData, setFormData] = useState({
@@ -11,7 +12,7 @@ const AllFundMake = () => {
         title: '',
         text: '',
         count: 0,
-        prove: true,
+        prove: false,
         image: ''
     });
     const [duration, setDuration] = useState('');

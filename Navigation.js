@@ -482,9 +482,7 @@ function TabGroup({ setIsLoggedIn }) {
                   } else if (route.name === '프로필') {
                     iconName = focused ? 'account-circle' : 'account-circle-outline';
                   } 
-                   // 다른 탭에 대한 iconName 설정을 계속 추가...
-                  
-                  // 아이콘 크기와 색상을 조정할 수 있습니다.
+                   
                   return <Icon name={iconName} size={size} color={color} style={{ backgroundColor: 'red' }}/>;
               },
               tabBarLabelPosition: 'below-icon', // 아이콘 아래에 라벨 표시
