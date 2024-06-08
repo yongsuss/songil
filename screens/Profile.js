@@ -176,6 +176,7 @@ import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView 
 import { AppContext } from '../AppContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
+import * as Progress from 'react-native-progress';
 import axios from 'axios';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
@@ -183,10 +184,13 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     id, // 사용자 ID를 AppContext에서 추가로 가져와야 합니다.
     nickname,
     message,
+    point,
+    rank,
     setNickname,
     setMessage,
     profileimage,
     setProfileimage,
+    profileToken,
     apiUrl,
     azureUrl
   } = useContext(AppContext);
@@ -212,32 +216,6 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     navigation.navigate('VulnerableCertificationScreen');
   };
 
-  useEffect(() => {
-    const fetchUserInfo = async () => {
-      if (!id) {
-        console.log('No user ID available');
-        return;
-      }
-      try {
-        const url = `${apiUrl}/users/${id}`; // ID를 이용하여 특정 유저의 정보 요청
-        const response = await axios.get(url);
-        if (response.data) {
-          setUserInfo({
-            nickname: response.data.nickname,
-            message: response.data.message
-          });
-          if (response.data.profileImage) {
-            setProfileImage(response.data.profileImage);
-          }
-        }
-      } catch (error) {
-        console.error('Failed to fetch user info:', error);
-      }
-    };
-
-    fetchUserInfo();
-  }, [apiUrl, id]);
-
   const handleChoosePhoto = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();//파일 접근 권한
     if (permissionResult.granted === false) {
@@ -253,13 +231,11 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     if (!result.cancelled) {
       const fileUri = result.assets[0].uri;
       const fileName = fileUri.split('/').pop();
-      const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
-      const azureUrl = `https://songilstorage.blob.core.windows.net/profile/${fileName}?${profileToken}`;
 
       try {
         const fileContent = await FileSystem.readAsStringAsync(fileUri, { encoding: FileSystem.EncodingType.Base64 });
         const fileArrayBuffer = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
-        await axios.put(azureUrl, fileArrayBuffer, {
+        await axios.put(`${azureUrl}/profile/${fileName}?${profileToken}`, fileArrayBuffer, {
           headers: {
             'x-ms-blob-type': 'BlockBlob',
             'Content-Type': 'image/jpeg'
@@ -278,24 +254,19 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     }
   };
 
-
-
   return (
     <ScrollView style={styles.container}>
       <View style={styles.profileHeader}>
         <TouchableOpacity onPress={handleChoosePhoto}>
           <Image
-            source={profileimage ? { uri: azureUrl+"/profile/"+setProfileimage } : require('../assets/logo.png')}
+            source={profileimage ? { uri: azureUrl+"/profile/"+profileimage } : require('../assets/logo.png')}
             style={styles.profileImage}
           />
         </TouchableOpacity>
         <View style={styles.profileTitle}>
-          <TextInput
-            style={styles.userName}
-            value={nickname}
-            onChangeText={setNickname}
-            placeholder="닉네임"
-          />
+          <Text style={styles.userName}>{nickname}</Text>
+          <Text style={styles.userName}>{`랭크 : ${rank}`}</Text>
+          <Progress.Bar progress={0.3} width={100} />
         </View>
       </View>
       <View style={styles.infoBox}>
@@ -333,6 +304,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     padding: 16,
     alignItems: 'center',
+    justifyContent: 'flex-start'
   },
   profileImage: {
     width: 80,
@@ -341,14 +313,15 @@ const styles = StyleSheet.create({
   },
   profileTitle: {
     flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     paddingHorizontal: 10,
   },
   userName: {
-    fontSize: 18,
+    fontSize: 25,
     fontWeight: 'bold',
+    marginLeft: 10,
   },
   infoBox: {
     padding: 16,
@@ -358,6 +331,7 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     padding: 10,
     marginBottom: 16,
+    fontSize: 18,
   },
   menuItem: {
     padding: 16,

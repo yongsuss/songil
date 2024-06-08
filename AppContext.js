@@ -4,6 +4,7 @@ const AppContext = createContext();
 
 const AppProvider = ({ children }) => {
   const [id, setId] = useState(''); // 사용자 ID
+  const [name, setName] = useState('');//사용자 이름
   const [admin, setAdmin] = useState(false); // 관리자 여부, 불리언으로 초기화
   const [nickname, setNickname] = useState(''); // 닉네임
   const [age, setAge] = useState(''); // 나이
@@ -37,6 +38,8 @@ const AppProvider = ({ children }) => {
     azureUrl,
     id,
     setId,
+    name,
+    setName,
     apiUrl,
     admin,
     setAdmin,
