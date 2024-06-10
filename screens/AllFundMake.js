@@ -665,7 +665,7 @@ function AllFundMake({ navigation }) {
       // 파일을 Azure Storage에 업로드
       const fileContent = await FileSystem.readAsStringAsync(fundraisingImageFileUri, { encoding: FileSystem.EncodingType.Base64 });
       const fileArrayBuffer = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
-      const uploadUrl = `${azureUrl}/board/${fundraisingImageFile}?${fundraisingToken}`;
+      const uploadUrl = `${azureUrl}/fundraising/${fundraisingImageFile}?${fundraisingToken}`;
       
       await axios.put(uploadUrl, fileArrayBuffer, {
         headers: {

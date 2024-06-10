@@ -382,7 +382,7 @@ const FundraiserScreen = () => {
       <ScrollView style={styles.listContainer}>
         {fundraisingData().map((fundraising, index) => (
           <TouchableOpacity key={index} style={styles.listItem} onPress={() => navigateToDetails(fundraising)}>
-            {fundraising.image && <Image source={{ uri: azureUrl+'/fundraisings/prove/{prove}/'+fundraising.image }} style={styles.image} />}
+            {fundraising.image && <Image source={{ uri: azureUrl+'/fundraising/'+fundraising.image }} style={styles.image} />}
             <View style={styles.textContainer}>
               <Text style={styles.title}>{fundraising.title}</Text>
               <Text style={styles.nickname}>{getCategoryName(fundraising.category)}</Text>
