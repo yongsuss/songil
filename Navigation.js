@@ -282,7 +282,7 @@ import DeliveryScreen from './screens/DeliveryScreen'; //게시글에서 기부�
 import VulnerableCertificationScreen from './screens/VulnerableCertificationScreen' //프로필-취약계층인증
 //import DeliveryScreen from './screens/DeliveryScreen'; //배송
 import { AppContext } from './AppContext'; // AppContext 가져오기
-
+import FundraisingBulletin from './screens/FundraisingBulletin'; //모금 게시글 화면
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // 추가
@@ -387,6 +387,11 @@ function AllFundStack() {
       <Stack.Screen
         name="AllFundMake" component={AllFundMake}
         options={{ headerTitle: '모금건의하기', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="FundraisingBulletin" 
+        component={FundraisingBulletin}
+        options={{ headerTitle: '모금 게시글', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
