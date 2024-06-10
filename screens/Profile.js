@@ -204,6 +204,10 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     });
   };
   
+  const userspost= () => {
+    navigation.navigate('MyPosts'); //유저가 작성한 게시글의 목록
+  };
+
   const handleMyInfo = () => {
     navigation.navigate('MyInfoScreen');
   };
@@ -286,6 +290,9 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
       </View>
       <TouchableOpacity style={styles.menuItem} onPress={handleMyInfo}>
         <Text style={styles.menuText}>내정보</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.menuItem} onPress={userspost}>
+        <Text style={styles.menuText}>나의 게시글</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
         <Text style={styles.menuText}>환경설정</Text>

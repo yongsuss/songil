@@ -283,7 +283,8 @@ import VulnerableCertificationScreen from './screens/VulnerableCertificationScre
 //import DeliveryScreen from './screens/DeliveryScreen'; //배송
 import { AppContext } from './AppContext'; // AppContext 가져오기
 import FundraisingBulletin from './screens/FundraisingBulletin'; //모금 게시글 화면
-
+import HomeBulletin from './screens/HomeBulletin';  //홈화면에서 보는 게시글
+import MyPosts from './screens/MyPosts';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // 추가
 
@@ -354,6 +355,11 @@ function HomeStack() {
         headerTitle: '뉴스',
         headerTitleAlign: 'center',
       })}
+      />
+      <Stack.Screen
+        name="HomeBulletin" 
+        component={HomeBulletin}
+        options={{ headerTitle: '게시글', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
@@ -439,7 +445,7 @@ function FundBoardStack() {
       <Stack.Screen
         name="DeliveryScreen" 
         component={DeliveryScreen}
-        options={{ headerTitle: '기부하기:배송 화면', headerTitleAlign: 'center' }}
+        options={{ headerTitle: '배송 화면', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
@@ -464,6 +470,10 @@ function ProfileStack({ setIsLoggedIn }) {
       <Stack.Screen
         name="VulnerableCertificationScreen" component={VulnerableCertificationScreen}
         options={{ headerTitle: '취약계층인증', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="MyPosts" component={MyPosts}
+        options={{ headerTitle: '나의 게시글', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );

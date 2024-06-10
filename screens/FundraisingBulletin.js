@@ -1,12 +1,18 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+//모금게시글 화면
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, Pressable } from 'react-native';
 import axios from 'axios';
 import moment from 'moment';
+import { AppContext } from '../AppContext';
+
 
 const FundraisingBulletin = ({ route, navigation }) => {
   const { fundraisingId } = route.params; // Route에서 전달받은 fundraisingId
   const [fundraising, setFundraising] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { azureUrl } = useContext(AppContext);
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
 
   useEffect(() => {
     const fetchFundraisingDetails = async () => {
@@ -24,6 +30,16 @@ const FundraisingBulletin = ({ route, navigation }) => {
     fetchFundraisingDetails();
   }, [fundraisingId]);
 
+    const handleImagePress = (imageUrl) => {
+        setSelectedImage(imageUrl);
+        setIsModalVisible(true);
+    };
+
+    const closeModal = () => {
+        setIsModalVisible(false);
+        setSelectedImage(null);
+    };
+
   if (loading) {
     return <ActivityIndicator size="large" color="#4caf50" style={styles.loader} />;
   }
@@ -32,11 +48,14 @@ const FundraisingBulletin = ({ route, navigation }) => {
     return <Text style={styles.errorText}>해당 게시글을 찾을 수 없습니다.</Text>;
   }
 
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{fundraising.title}</Text>
       {fundraising.image && (
-        <Image source={{ uri: `http://20.39.190.194/fundraising/prove/${fundraising.image}` }} style={styles.image} />
+        <TouchableOpacity onPress={() => handleImagePress(azureUrl + '/fundraising/' + fundraising.image)}>
+          <Image source={{ uri: azureUrl + '/fundraising/' + fundraising.image }} style={styles.image} />
+        </TouchableOpacity>
       )}
       <View style={styles.infoContainer}>
         <Text style={styles.category}>{getCategoryName(fundraising.category)}</Text>
@@ -53,6 +72,20 @@ const FundraisingBulletin = ({ route, navigation }) => {
           <Text style={styles.donateButtonText}>기부하기</Text>
         </TouchableOpacity>
       </View>
+    <Modal
+        visible={isModalVisible}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={closeModal}
+      >
+        <View style={styles.modalBackground}>
+          <Pressable style={styles.modalContainer} onPress={closeModal}>
+            {selectedImage && (
+              <Image source={{ uri: selectedImage }} style={styles.fullscreenImage} />
+            )}
+          </Pressable>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
@@ -164,6 +197,23 @@ const styles = StyleSheet.create({
     color: '#888',
     marginBottom: 10,
     textAlign: 'right' // 텍스트를 오른쪽으로 정렬
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.8)', // 반투명한 검은 배경
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    width: '90%', // 이미지 컨테이너 너비
+    height: '80%', // 이미지 컨테이너 높이
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  fullscreenImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain', // 이미지를 비율에 맞춰 화면에 맞게 조정
   },
 });
 
