@@ -177,6 +177,7 @@ import { AppContext } from '../AppContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Progress from 'react-native-progress';
+import Icons from 'react-native-vector-icons/MaterialCommunityIcons'; // Icon 추가
 import axios from 'axios';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
@@ -267,6 +268,7 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
           <Text style={styles.userName}>{nickname}</Text>
           <Text style={styles.userName}>{`랭크 : ${rank}`}</Text>
           <Progress.Bar progress={0.3} width={100} />
+          <Icons name="tag" size={20} />
         </View>
       </View>
       <View style={styles.infoBox}>

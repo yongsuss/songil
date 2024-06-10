@@ -409,7 +409,7 @@ function Bulletin({ route, navigation }) {
         .then(response => response.json())
         .then(data => {
             const now = new Date().toISOString(); // 현재 시간을 ISO 문자열로 변환
-            setComments([...comments, {...data, postedAt: formatTimeElapsed(now)}]); // 댓글 목록에 즉시 추가
+            setComments([{...data, nickname: nickname, postedAt: formatTimeElapsed(now)}, ...comments]); // 댓글 목록에 즉시 추가
             setCommentText('');
         })
         .catch(error => console.error('Error adding comment:', error));

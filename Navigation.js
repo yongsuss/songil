@@ -464,7 +464,6 @@ function ProfileStack({ setIsLoggedIn }) {
   );
 }
 
-
 function TabGroup({ setIsLoggedIn }) {
   return (
       <Tab.Navigator
@@ -492,17 +491,17 @@ function TabGroup({ setIsLoggedIn }) {
           })}
       >
           
-          <Tab.Screen name="홈" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen
+          name="홈" component={HomeStack} options={{ headerShown: false }} />
           <Tab.Screen name="기부게시판" component={FundBoardStack} options={{ headerShown: false }}/>
           <Tab.Screen name="모금" component={AllFundStack} options={{ headerShown: false }}
           />
-          <Tab.Screen name="랭킹" component={Rank} 
-          options={({ navigation }) => ({
-            headerTitle: '랭킹',
-            headerTitleAlign: 'center',
-          })}
-          />
-          <Tab.Screen name="프로필" options={{ headerShown: false}}>
+          <Tab.Screen name="랭킹" component={Rank} options={{ headerTitle: '랭킹', headerTitleAlign: 'center' }} />
+          <Tab.Screen
+            name="프로필"
+            options={{
+              headerShown: false
+            }}>
             {() => <ProfileStack setIsLoggedIn={setIsLoggedIn} />}
         </Tab.Screen>
       </Tab.Navigator>
