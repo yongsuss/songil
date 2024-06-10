@@ -84,6 +84,7 @@ const Home = () => {
     const loadNews = async () => {
       const newsData = await fetchDonationNews();
       setArticles(newsData);
+      //console.log(newsData);
     };
 
     loadNews();

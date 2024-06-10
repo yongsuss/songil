@@ -177,7 +177,6 @@ import { AppContext } from '../AppContext';
 import * as ImagePicker from 'expo-image-picker';
 import * as FileSystem from 'expo-file-system';
 import * as Progress from 'react-native-progress';
-import Icons from 'react-native-vector-icons/MaterialCommunityIcons'; // Icon 추가
 import axios from 'axios';
 
 const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
@@ -266,9 +265,13 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
         </TouchableOpacity>
         <View style={styles.profileTitle}>
           <Text style={styles.userName}>{nickname}</Text>
-          <Text style={styles.userName}>{`랭크 : ${rank}`}</Text>
-          <Progress.Bar progress={0.3} width={100} />
-          <Icons name="tag" size={20} />
+          <View style={{width: "100%", flexDirection: 'row', justifyContent: 'flex-end'}}>
+            <Text style={[styles.userRank, {color: '#00ff33'}]}>{`Rank `}</Text>
+            <Text style={[styles.userRank, {color: '#3333ff'}]}>{`Lv.${rank}`}</Text>
+          </View>
+          <View style={{width: "100%", height: 5,flexDirection: 'row', justifyContent: 'center', marginTop: 8}}>
+            <Progress.Bar progress={0.3} width={200} height={5}/>
+          </View>
         </View>
       </View>
       <View style={styles.infoBox}>
@@ -317,13 +320,16 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingHorizontal: 10,
+    alignItems: 'flex-start',
+    marginLeft: 25
   },
   userName: {
-    fontSize: 25,
+    fontSize: 30,
     fontWeight: 'bold',
-    marginLeft: 10,
+  },
+  userRank: {
+    fontSize: 15,
+    fontWeight: 'bold',
   },
   infoBox: {
     padding: 16,

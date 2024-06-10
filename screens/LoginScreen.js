@@ -31,7 +31,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
             setPoint(response.data.point);
             setRank(response.data.rank);
             setAddress(response.data.address);
-            setProfileimage(response.data.profileimage);
+            setProfileimage(response.data.image);
             setResident(response.data.resident);
             onLoginSuccess(true); // 로그인 상태를 true로 변경
           }
