@@ -25,7 +25,8 @@ import VulnerableCertificationScreen from './screens/VulnerableCertificationScre
 import { AppContext } from './AppContext'; // AppContext 가져오기
 import FundraisingBulletin from './screens/FundraisingBulletin'; //모금 게시글 화면
 import HomeBulletin from './screens/HomeBulletin';  //홈화면에서 보는 게시글
-import MyPosts from './screens/MyPosts';
+import MyPosts from './screens/MyPosts'; //게시글 목록화면
+import BullentinUpdate from './screens/BullentinUpdate';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // 추가
 
@@ -215,6 +216,10 @@ function ProfileStack({ setIsLoggedIn }) {
       <Stack.Screen
         name="MyPosts" component={MyPosts}
         options={{ headerTitle: '나의 게시글', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="BullentinUpdate" component={BullentinUpdate}
+        options={{ headerTitle: '게시글 수정', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
