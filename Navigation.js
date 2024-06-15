@@ -1,4 +1,4 @@
-import { TouchableOpacity, Text, StyleSheet } from 'react-native';
+import { TouchableOpacity, Text, StyleSheet, View } from 'react-native';
 import React, { useState, Component, useContext  } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -26,7 +26,9 @@ import { AppContext } from './AppContext'; // AppContext 가져오기
 import FundraisingBulletin from './screens/FundraisingBulletin'; //모금 게시글 화면
 import HomeBulletin from './screens/HomeBulletin';  //홈화면에서 보는 게시글
 import MyPosts from './screens/MyPosts'; //게시글 목록화면
-import BullentinUpdate from './screens/BullentinUpdate';
+import MyDonation from './screens/MyDonation'; //기부기록 확인
+import ReviewMakeScreen from './screens/ReviewMakeScreen';
+import BulletinUpdate from './screens/BulletinUpdate';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // 추가
 
@@ -189,6 +191,11 @@ function FundBoardStack() {
         component={DeliveryScreen}
         options={{ headerTitle: '배송 화면', headerTitleAlign: 'center' }}
       />
+      <Stack.Screen
+        name="ReviewMakeScreen" 
+        component={ReviewMakeScreen}
+        options={{ headerTitle: '리뷰 작성', headerTitleAlign: 'center' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -218,8 +225,12 @@ function ProfileStack({ setIsLoggedIn }) {
         options={{ headerTitle: '나의 게시글', headerTitleAlign: 'center' }}
       />
       <Stack.Screen
-        name="BullentinUpdate" component={BullentinUpdate}
+        name="BulletinUpdate" component={BulletinUpdate}
         options={{ headerTitle: '게시글 수정', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="MyDonation" component={MyDonation}
+        options={{ headerTitle: '기부기록', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
@@ -231,40 +242,47 @@ function TabGroup({ setIsLoggedIn }) {
           screenOptions={({ route }) => ({
               tabBarIcon: ({ focused, color, size }) => {
                   let iconName;
-
-                  if (route.name === '홈') {
-                      iconName = focused ? 'home' : 'home-outline';
-                  } else if (route.name === '기부게시판') {
-                      iconName = focused ? 'heart' : 'heart-outline';
-                  } else if (route.name === '모금') {
-                    iconName = focused ? 'hand-heart' : 'hand-heart-outline';
-                  } else if (route.name === '랭킹') {
-                    iconName = focused ? 'trophy' : 'trophy-outline';
-                  } else if (route.name === '프로필') {
-                    iconName = focused ? 'account-circle' : 'account-circle-outline';
-                  } 
-                   
-                  return <MaterialCommunityIcons name={iconName} size={size} color={color} style={{ backgroundColor: 'red' }}/>;
+                  switch (route.name) {
+                      case '홈':
+                          iconName = focused ? 'home' : 'home-outline';
+                          break;
+                      case '기부게시판':
+                          iconName = focused ? 'heart' : 'heart-outline';
+                          break;
+                      case '모금':
+                          iconName = focused ? 'hand-heart' : 'hand-heart-outline';
+                          break;
+                      case '랭킹':
+                          iconName = focused ? 'trophy' : 'trophy-outline';
+                          break;
+                      case '프로필':
+                          iconName = focused ? 'account-circle' : 'account-circle-outline';
+                          break;
+                  }
+                  // 아이콘을 View 컨테이너로 감싸고, focused 상태에 따라 테두리 색상 변경
+                  return (
+                    <View style={{
+                      borderWidth: 2,
+                      borderColor: focused ? 'red' : 'gray',  // 활성화 상태에 따라 테두리 색 변경
+                      borderRadius: size / 2,  // 원형 테두리
+                      padding: 2  // 테두리와 아이콘 사이의 여백
+                    }}>
+                      <MaterialCommunityIcons name={iconName} size={size} color={color} />
+                    </View>
+                  );
               },
-              tabBarLabelPosition: 'below-icon', // 아이콘 아래에 라벨 표시
-              tabBarActiveTintColor: 'tomato', // 활성 탭의 색상
-              tabBarInactiveTintColor: 'gray', // 비활성 탭의 색상
+              tabBarLabelPosition: 'below-icon',  // 아이콘 아래에 라벨 표시
+              tabBarActiveTintColor: 'tomato',  // 활성 탭의 색상
+              tabBarInactiveTintColor: 'gray',  // 비활성 탭의 색상
           })}
       >
-          
-          <Tab.Screen
-          name="홈" component={HomeStack} options={{ headerShown: false }} />
-          <Tab.Screen name="기부게시판" component={FundBoardStack} options={{ headerShown: false }}/>
-          <Tab.Screen name="모금" component={AllFundStack} options={{ headerShown: false }}
-          />
+          <Tab.Screen name="홈" component={HomeStack} options={{ headerShown: false }} />
+          <Tab.Screen name="기부게시판" component={FundBoardStack} options={{ headerShown: false }} />
+          <Tab.Screen name="모금" component={AllFundStack} options={{ headerShown: false }} />
           <Tab.Screen name="랭킹" component={Rank} options={{ headerTitle: '랭킹', headerTitleAlign: 'center' }} />
-          <Tab.Screen
-            name="프로필"
-            options={{
-              headerShown: false
-            }}>
+          <Tab.Screen name="프로필" options={{ headerShown: false }}>
             {() => <ProfileStack setIsLoggedIn={setIsLoggedIn} />}
-        </Tab.Screen>
+          </Tab.Screen>
       </Tab.Navigator>
   );
 }

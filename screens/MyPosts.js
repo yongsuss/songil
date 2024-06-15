@@ -8,6 +8,7 @@ const MyPosts = ({ navigation }) => {
   const { id, apiUrl } = useContext(AppContext); // AppContext에서 사용자 ID와 API URL 가져오기
   const [posts, setPosts] = useState([]); // 게시글 상태
 
+  
   useEffect(() => {
     fetchPosts();
   }, [id, apiUrl]);
@@ -15,10 +16,18 @@ const MyPosts = ({ navigation }) => {
   const fetchPosts = async () => {
     try {
       const response = await axios.get(`${apiUrl}/weakuser/board/${id}`);
-      setPosts(response.data);
+      setPosts(response.data.map(post => ({
+        ...post,
+        day: formatDate(post.day) // 날짜를 yyyy-mm-dd 형식으로 포매팅
+      })));
     } catch (error) {
       console.error('게시글을 불러오는데 실패했습니다:', error);
     }
+  };
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
   };
 
   const confirmDelete = (postId) => {
@@ -55,6 +64,7 @@ const MyPosts = ({ navigation }) => {
           >
           <Text style={styles.title}>{post.title}</Text>
           <Text style={styles.text} numberOfLines={2}>{post.text}</Text>
+          <Text style={styles.text}>작성일:{post.day}</Text>
           <TouchableOpacity
             style={styles.deleteButton}
             onPress={() => confirmDelete(post.board_id)}
@@ -72,35 +82,38 @@ const MyPosts = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 10,
+    padding: 20,
+    backgroundColor: '#f4f4f4', // 밝은 회색 배경
   },
   postContainer: {
-    marginBottom: 20,
-    padding: 10,
-    borderWidth: 1,
-    borderColor: '#ccc',
-    borderRadius: 5,
+    backgroundColor: 'white',
+    padding: 20,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 5,
+    marginBottom: 15,
+    position: 'relative',
   },
   title: {
     fontSize: 18,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#333',  // 진한 회색
   },
   text: {
     fontSize: 16,
-    marginBottom: 10,
+    color: '#666',  // 중간 회색
   },
   deleteButton: {
     position: 'absolute',
-    right: 5, // 모서리에 더 가깝게 조정
-    bottom: 5,
-    padding: 5, // 버튼 크기 줄임
+    right: 10,
+    top: 10,
     backgroundColor: 'red',
-    borderRadius: 5,
-  },
-  deleteButtonText: {
-    color: 'white',
-    fontSize: 12, // 텍스트 크기 줄임
+    padding: 10,
+    borderRadius: 50, // 원형 버튼으로 변경
   },
 });
 

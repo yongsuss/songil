@@ -1,12 +1,15 @@
-/*import React, { useContext, useState } from 'react';
+// 기부 배송 화면 
+/*
+import React, { useContext, useState } from 'react';
 import { View, Text, Button, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { AppContext } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 import axios from 'axios';
 
 export default function DeliveryScreen() {
-    const { id, name, phone, apiUrl } = useContext(AppContext);
+    const { id, name, phone, apiUrl, authToken } = useContext(AppContext);
     const route = useRoute();
     const weakId = route.params?.weakId; // Retrieve the weakId from navigation parameters
 
@@ -15,6 +18,11 @@ export default function DeliveryScreen() {
     const [basicAddress, setBasicAddress] = useState(''); // User will input this manually
     const [isAddressValid, setIsAddressValid] = useState(null); // Address validity state
 
+    const [expoPushToken, setExpoPushToken] = useState(''); // Expo 푸시 토큰을 저장할 상태
+    const [notification, setNotification] = useState(false); // 수신된 알림을 저장할 상태
+    const notificationListener = useRef(); // 알림 수신 리스너를 참조
+    const responseListener = useRef(); // 알림 응답 리스너를 참조
+
     const handlePriceCheck = async () => {
         console.log({
             basicAddress,
@@ -22,26 +30,21 @@ export default function DeliveryScreen() {
             productSize,
             weak_id: weakId
         });
-    
+
         try {
             const response = await axios.post(`${apiUrl}/delivery/price`, {
                 basicAddress,
                 detailAddress,
                 productSize,
                 weak_id: weakId
+            }, {
+            
             });
             Alert.alert("가격 정보", `가격: ${response.data.price}원`);
         } catch (error) {
             console.error('가격 조회 실패:', error);
-            if (error.response && error.response.data) {
-                // 오류 메시지가 배열인지 확인하고 배열이면 join으로 문자열로 변환
-                const errorMessage = Array.isArray(error.response.data.detail)
-                    ? error.response.data.detail.join(', ')
-                    : error.response.data.detail;
-                Alert.alert("오류", `가격 조회에 실패했습니다: ${errorMessage}`);
-            } else {
-                Alert.alert("오류", "서버 응답 없음");
-            }
+            const errorMessage = error.response?.data?.detail || error.message;
+            Alert.alert("오류", `가격 조회에 실패했습니다: ${errorMessage}`);
         }
     };
 
@@ -55,11 +58,17 @@ export default function DeliveryScreen() {
                 detailAddress,
                 productSize,
                 weak_id: weakId
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${authToken}` // 필요한 경우 인증 토큰 추가
+                }
             });
             Alert.alert("Order Success", `Order ID: ${response.data}`);
+            await sendPushNotification(expoPushToken); // 취약계층에게 푸시 알림 전송
         } catch (error) {
             console.error('Order creation failed:', error);
-            Alert.alert("Error", "Failed to create the order.");
+            const errorMessage = error.response?.data?.detail || error.message;
+            Alert.alert("Error", `주문 생성에 실패했습니다: ${errorMessage}`);
         }
     };
 
@@ -76,9 +85,29 @@ export default function DeliveryScreen() {
         }
     };
 
+    useEffect(() => {
+        // 푸시 알림을 위한 등록 함수 호출
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    
+        // 알림 수신 리스너 설정
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+          setNotification(notification);
+        });
+    
+        // 알림 응답 리스너 설정
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+          console.log(response);
+        });
+    
+        // 컴포넌트 언마운트 시 리스너 정리
+        return () => {
+          Notifications.removeNotificationSubscription(notificationListener.current);
+          Notifications.removeNotificationSubscription(responseListener.current);
+        };
+      }, []);
+
     return (
         <View style={styles.container}>
-            <Text style={styles.title}>퀵 배송</Text>
             <Text style={styles.label}>상품 사이즈</Text>
             <Picker
                 selectedValue={productSize}
@@ -187,37 +216,34 @@ const styles = StyleSheet.create({
         fontSize: 18,
         fontWeight: 'bold',
     },
-});*/
+});
 
-import React, { useContext, useState, useEffect, useRef } from 'react';
-import { View, Text, Button, Platform, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+export default DeliveryScreen;
+*/
+import React, { useContext, useState } from 'react';
+import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
 import { AppContext } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
-import * as Notifications from 'expo-notifications';
 import axios from 'axios';
 
 export default function DeliveryScreen() {
     const { id, name, phone, apiUrl, authToken } = useContext(AppContext);
     const route = useRoute();
-    const weakId = route.params?.weakId; // Retrieve the weakId from navigation parameters
-
+    const weakId = route.params?.weakId; // 네비게이션 매개변수에서 weakId를 가져옵니다.
+    const boardId = route.params?.boardId;
     const [productSize, setProductSize] = useState('XS');
     const [detailAddress, setDetailAddress] = useState('');
-    const [basicAddress, setBasicAddress] = useState(''); // User will input this manually
-    const [isAddressValid, setIsAddressValid] = useState(null); // Address validity state
-
-    const [expoPushToken, setExpoPushToken] = useState(''); // Expo 푸시 토큰을 저장할 상태
-    const [notification, setNotification] = useState(false); // 수신된 알림을 저장할 상태
-    const notificationListener = useRef(); // 알림 수신 리스너를 참조
-    const responseListener = useRef(); // 알림 응답 리스너를 참조
+    const [basicAddress, setBasicAddress] = useState(''); // 사용자가 직접 입력하는 기본 주소
+    const [isAddressValid, setIsAddressValid] = useState(null); // 주소 유효성 상태
 
     const handlePriceCheck = async () => {
         console.log({
             basicAddress,
             detailAddress,
             productSize,
-            weak_id: weakId
+            weak_id: weakId,
+            boardId
         });
 
         try {
@@ -226,8 +252,6 @@ export default function DeliveryScreen() {
                 detailAddress,
                 productSize,
                 weak_id: weakId
-            }, {
-            
             });
             Alert.alert("가격 정보", `가격: ${response.data.price}원`);
         } catch (error) {
@@ -239,6 +263,7 @@ export default function DeliveryScreen() {
 
     const handleCreateOrder = async () => {
         try {
+            // 주문 생성 API 호출
             const response = await axios.post(`${apiUrl}/delivery/order`, {
                 user_id: id,
                 name,
@@ -252,8 +277,23 @@ export default function DeliveryScreen() {
                     'Authorization': `Bearer ${authToken}` // 필요한 경우 인증 토큰 추가
                 }
             });
-            Alert.alert("Order Success", `Order ID: ${response.data}`);
-            await sendPushNotification(expoPushToken); // 취약계층에게 푸시 알림 전송
+
+            const orderId = response.data;
+            Alert.alert("Order Success", `Order ID: ${orderId}`);
+
+            // 주문 성공 후, 기부 추가 API 호출
+            try {
+                const donationResponse = await axios.post(`${apiUrl}/donations/add/`, {
+                    board_id: boardId,
+                    id: id // 사용자 ID를 기부에 추가
+                });
+                Alert.alert("Donation Success", `Donation ID: ${donationResponse.data.donation_id}`);
+            } catch (error) {
+                console.error('Donation creation failed:', error);
+                const errorMessage = error.response?.data?.detail || error.message;
+                Alert.alert("Error", `기부 생성에 실패했습니다: ${errorMessage}`);
+            }
+
         } catch (error) {
             console.error('Order creation failed:', error);
             const errorMessage = error.response?.data?.detail || error.message;
@@ -265,7 +305,7 @@ export default function DeliveryScreen() {
         try {
             const response = await axios.get(`${apiUrl}/check-address/${basicAddress}`);
             setIsAddressValid(response.data === 'Valid');
-            if(response.data) {
+            if (response.data) {
                 Alert.alert("주소 확인", "유효한 주소입니다.");
             }
         } catch (error) {
@@ -273,27 +313,6 @@ export default function DeliveryScreen() {
             Alert.alert("Error", "주소 확인에 실패했습니다.");
         }
     };
-
-    useEffect(() => {
-        // 푸시 알림을 위한 등록 함수 호출
-        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
-    
-        // 알림 수신 리스너 설정
-        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
-          setNotification(notification);
-        });
-    
-        // 알림 응답 리스너 설정
-        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
-          console.log(response);
-        });
-    
-        // 컴포넌트 언마운트 시 리스너 정리
-        return () => {
-          Notifications.removeNotificationSubscription(notificationListener.current);
-          Notifications.removeNotificationSubscription(responseListener.current);
-        };
-      }, []);
 
     return (
         <View style={styles.container}>
