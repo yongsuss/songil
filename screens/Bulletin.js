@@ -485,7 +485,9 @@ function Bulletin({ route, navigation }) {
             weakId: board.id,
             boardId: board.board_id
         });
+        //navigation.navigate('ReviewMakeScreen');
     };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>{board.title}</Text>
@@ -542,7 +544,7 @@ function Bulletin({ route, navigation }) {
                 <Text style={styles.donateButtonText}>기부하기</Text>
             </TouchableOpacity>
             {isOwner && (
-            <TouchableOpacity style={styles.donateButton} onPress={() => {navigateReviewMakeScreen}}>
+            <TouchableOpacity style={styles.donateButton} onPress={navigateReviewMakeScreen}>
                 <Text style={styles.donateButtonText}>리뷰 작성</Text>
             </TouchableOpacity>
         )}
