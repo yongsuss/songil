@@ -526,6 +526,7 @@ const styles = StyleSheet.create({
   },
   pageText: {
     color: '#000',
+    fontWeight: 'bold',
   }
 });
 

@@ -1,196 +1,260 @@
 //사용자의 기부 목록
-/*
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { AppContext } from '../AppContext';
+/* 
+  import React, { useContext, useEffect, useState } from 'react';
+  import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Modal, Alert, Pressable } from 'react-native';
+  import axios from 'axios';
+  import { AppContext } from '../AppContext';
+  
+  const MyDonation = ({navigation}) => {
+    const [activeTab, setActiveTab] = useState('donations');
+    const [donations, setDonations] = useState([]);
+    const [fundraisings, setFundraisings] = useState([]);
+    const { apiUrl, id, azureUrl } = useContext(AppContext);
 
-const MyDonation = () => {
-  const [activeTab, setActiveTab] = useState('fund'); // 초기 탭 설정
-  const [donations, setDonations] = useState({ fund: [], item: [] });
-  const navigation = useNavigation();
-  const { apiUrl } = useContext(AppContext);
-
-  useEffect(() => {
+  
+    useEffect(() => {
+      fetchDonations();
+      fetchFundraisings();
+    }, []);
+  
     const fetchDonations = async () => {
       try {
-        // API에서 모든 기부 정보를 가져옴
-        const response = await axios.get(`${apiUrl}/donations`);
-        const { fund, item } = response.data;
-        setDonations({ fund, item });
-      } catch (error) {
-        console.error('Failed to fetch donations:', error);
-      }
-    };
-
-    fetchDonations();
-  }, []);
-
-  const handleTabChange = (tab) => {
-    setActiveTab(tab);
-  };
-
-  const DonationList = ({ type }) => (
-    <ScrollView style={styles.listContainer}>
-      {donations[type].map((donation, index) => (
-        <TouchableOpacity key={index} style={styles.listItem} onPress={() => navigation.navigate('DonationDetails', { donationId: donation.id })}>
-          <View style={styles.textContainer}>
-            <Text style={styles.title}>{donation.title}</Text>
-            <Text style={styles.details}>{type === 'fund' ? `${donation.amount}원` : `${donation.item} x ${donation.quantity}`}</Text>
-            <Text style={styles.date}>{donation.date}</Text>
-          </View>
-        </TouchableOpacity>
-      ))}
-    </ScrollView>
-  );
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.tabContainer}>
-        <TouchableOpacity style={[styles.tab, activeTab === 'fund' && styles.activeTab]} onPress={() => handleTabChange('fund')}>
-          <Text style={[styles.tabText, activeTab === 'fund' && styles.activeTabText]}>기금 기부</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.tab, activeTab === 'item' && styles.activeTab]} onPress={() => handleTabChange('item')}>
-          <Text style={[styles.tabText, activeTab === 'item' && styles.activeTabText]}>물품 기부</Text>
-        </TouchableOpacity>
-      </View>
-      {activeTab === 'fund' ? <DonationList type="fund" /> : <DonationList type="item" />}
-    </View>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
-  tabContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: '#ffffff',
-    borderBottomWidth: 1,
-    borderBottomColor: '#dedede'
-  },
-  tab: {
-    paddingVertical: 10,
-    flex: 1,
-    alignItems: 'center',
-  },
-  activeTab: {
-    borderBottomWidth: 2,
-    borderBottomColor: '#0000ff',
-  },
-  tabText: {
-    color: '#666666',
-    fontWeight: '500',
-  },
-  activeTabText: {
-    color: '#000000',
-    fontWeight: 'bold',
-  },
-  listContainer: {
-    padding: 10,
-  },
-  listItem: {
-    flexDirection: 'row',
-    backgroundColor: '#ffffff',
-    padding: 15,
-    marginBottom: 10,
-    borderRadius: 5,
-  },
-  textContainer: {
-    flex: 1,
-  },
-  title: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5
-  },
-  details: {
-    fontSize: 14,
-    marginBottom: 5
-  },
-  date: {
-    fontSize: 12,
-    color: '#888',
-    textAlign: 'right'
-  }
-});
-
-export default MyDonation;*/
-
-
-import React, { useContext, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { AppContext } from '../AppContext';
-
-const MyDonation = () => {
-  const [donations, setDonations] = useState([]);
-  const [reviews, setReviews] = useState({});
-  const navigation = useNavigation();
-  const { azureUrl, userId, apiUrl } = useContext(AppContext);
-
-  useEffect(() => {
-    const fetchDonations = async () => {
-      try {
-        // API에서 사용자가 기부한 모든 게시글 정보를 가져옴
-        const response = await axios.get(`${apiUrl}/donations/board/${userId}`);
+        const response = await axios.get(`${apiUrl}/donations/board/${id}`);
         setDonations(response.data);
       } catch (error) {
         console.error('Failed to fetch donations:', error);
       }
     };
-
-    fetchDonations();
-  }, [apiUrl, userId]);
-
-  const fetchReview = async (boardId) => {
-    if (reviews[boardId]) {
-      console.log(`Review already loaded for board ${boardId}`);
-      return; // 이미 리뷰가 로드된 경우 다시 로드하지 않음
-    }
   
+    const fetchFundraisings = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/fundraising_user/totals/${id}`);
+        setFundraisings(response.data);
+      } catch (error) {
+        console.error('Failed to fetch fundraisings:', error);
+      }
+    };
+  
+  
+    const renderContent = () => {
+      if (activeTab === 'donations') {
+        return donations.map((donation, index) => (
+          <TouchableOpacity key={index} onPress={() => navigation.navigate('ReceivedReviews', { boardId: donation.board_id })}>
+            <Text style={styles.title}>{donation.title}</Text>
+            <Text style={styles.details}>{`${donation.item} - ${donation.text}`}</Text>
+            <Text style={styles.date}>게시일: {new Date(donation.day).toLocaleDateString()}</Text>
+          </TouchableOpacity>
+        ));
+      } else {
+        return fundraisings.map((fundraising, index) => (
+          <TouchableOpacity key={index} style={styles.listItem}>
+            <Text style={styles.title}>{fundraising.title}</Text>
+            <Text style={styles.details} >{`모금액: ${fundraising.amount}원`}</Text>
+            <Text style={styles.details} numberOfLines={2}>{`내용: ${fundraising.text}`}</Text>
+          </TouchableOpacity>
+        ));
+      }
+    };
+  
+    const closeModal = () => {
+      setIsModalVisible(false);
+      setSelectedImage(null);
+    };
+  
+    return (
+      <View style={styles.container}>
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'donations' && styles.activeTab]}
+            onPress={() => setActiveTab('donations')}
+          >
+            <Text style={styles.tabText}>Donations</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tabButton, activeTab === 'fundraisings' && styles.activeTab]}
+            onPress={() => setActiveTab('fundraisings')}
+          >
+            <Text style={styles.tabText}>Fundraisings</Text>
+          </TouchableOpacity>
+        </View>
+        <ScrollView style={styles.scroll}>
+          {renderContent()}
+        </ScrollView>
+      </View>
+    );
+  };
+  
+  const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: '#f8f8f8',
+    },
+    tabBar: {
+      flexDirection: 'row',
+      backgroundColor: '#fff',
+      borderBottomWidth: 2,
+      borderBottomColor: '#ccc',
+    },
+    tabButton: {
+      flex: 1,
+      padding: 15,
+      alignItems: 'center',
+      borderBottomWidth: 3,
+      borderBottomColor: 'transparent',
+    },
+    activeTab: {
+      borderBottomColor: '#007bff',
+    },
+    tabText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: '#333',
+    },
+    scroll: {
+      padding: 10,
+    },
+    listItem: {
+      backgroundColor: '#ffffff',
+      padding: 20,
+      borderRadius: 8,
+      marginBottom: 10,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 4 },
+      shadowOpacity: 0.1,
+      shadowRadius: 5,
+      elevation: 6,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: '#333',
+    },
+    details: {
+      fontSize: 16,
+      color: '#666',
+      marginTop: 5,
+    },
+    date: {
+      fontSize: 14,
+      color: '#888',
+      textAlign: 'right',
+    },
+    modalView: {
+      margin: 20,
+      backgroundColor: 'white',
+      borderRadius: 20,
+      padding: 35,
+      alignItems: 'center',
+      shadowColor: '#000',
+      shadowOffset: {
+        width: 0,
+        height: 2
+      },
+      shadowOpacity: 0.25,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    closeButton: {
+      padding: 10,
+      elevation: 2,
+    },
+    closeButtonText: {
+      color: '#2196F3',
+      fontWeight: 'bold',
+      textAlign: 'right',
+    },
+    reviewText: {
+      marginBottom: 15,
+      textAlign: 'center',
+      color: '#333',
+      fontSize: 16,
+    },
+    reviewImage: {
+      width: 300,
+      height: 300,
+      borderRadius: 15,
+    },
+    fullscreenImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'contain',
+    },
+  });
+  
+  export default MyDonation;*/
+/*
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { AppContext } from '../AppContext';
+
+const MyDonation = ({ navigation }) => {
+  const [activeTab, setActiveTab] = useState('donations');
+  const [donations, setDonations] = useState([]);
+  const [fundraisings, setFundraisings] = useState([]);
+  const { apiUrl, id } = useContext(AppContext);
+
+  useEffect(() => {
+    fetchDonations();
+    fetchFundraisings();
+  }, []);
+
+  const fetchDonations = async () => {
     try {
-      console.log(`Fetching review for board ${boardId}`);
-      const response = await axios.get(`${apiUrl}/reviews/${boardId}`);
-      console.log(`Fetched review for board ${boardId}:`, response.data);
-      setReviews((prevReviews) => ({
-        ...prevReviews,
-        [boardId]: response.data
-      }));
+      const response = await axios.get(`${apiUrl}/donations/board/${id}`);
+      setDonations(response.data);
     } catch (error) {
-      console.error(`Failed to fetch review for board ${boardId}:`, error);
+      console.error('Failed to fetch donations:', error);
+    }
+  };
+
+  const fetchFundraisings = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/fundraising_user/totals/${id}`);
+      setFundraisings(response.data);
+    } catch (error) {
+      console.error('Failed to fetch fundraisings:', error);
+    }
+  };
+
+  const renderContent = () => {
+    if (activeTab === 'donations') {
+      return donations.map((donation, index) => (
+        <TouchableOpacity key={index} onPress={() => navigation.navigate('ReceivedReviews', { boardId: donation.board_id })}
+          style={styles.listItem}>
+          <Text style={styles.title}>{donation.title}</Text>
+          <Text style={styles.details}>{`${donation.item} - ${donation.text}`}</Text>
+          <Text style={styles.date}>게시일: {new Date(donation.day).toLocaleDateString()}</Text>
+        </TouchableOpacity>
+      ));
+    } else {
+      return fundraisings.map((fundraising, index) => (
+        <TouchableOpacity key={index} onPress={() => toggleExpand(fundraising.id)} style={styles.listItem}>
+          <Text style={styles.title}>{fundraising.title}</Text>
+          <Text style={styles.details} >{`모금액: ${fundraising.amount}원`}</Text>
+        </TouchableOpacity>
+      ));
     }
   };
 
   return (
     <View style={styles.container}>
-      <ScrollView style={styles.listContainer}>
-        {donations.map((donation, index) => (
-          <TouchableOpacity
-            key={index}
-            style={styles.listItem}
-            onPress={() => {
-              fetchReview(donation.board_id);
-              navigation.navigate('DonationDetails', { donationId: donation.id });
-            }}
-          >
-            <View style={styles.textContainer}>
-              <Text style={styles.title}>{donation.title}</Text>
-              <Text style={styles.details}>{`${donation.item} - ${donation.text}`}</Text>
-              <Text style={styles.date}>{donation.day}</Text>
-              {reviews[donation.board_id] && (
-                <View style={styles.reviewContainer}>
-                  <Text style={styles.reviewTitle}>Review:</Text>
-                  <Text style={styles.reviewText}>{reviews[donation.board_id].text}</Text>
-                </View>
-              )}
-            </View>
-          </TouchableOpacity>
-        ))}
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'donations' && styles.activeTab]}
+          onPress={() => setActiveTab('donations')}
+        >
+          <Text style={styles.tabText}>Donations</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === 'fundraisings' && styles.activeTab]}
+          onPress={() => setActiveTab('fundraisings')}
+        >
+          <Text style={styles.tabText}>Fundraisings</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={styles.scroll}>
+        {renderContent()}
       </ScrollView>
     </View>
   );
@@ -199,48 +263,202 @@ const MyDonation = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f0f0f0',
+    backgroundColor: '#f8f8f8',
   },
-  listContainer: {
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderBottomWidth: 2,
+    borderBottomColor: '#ccc',
+  },
+  tabButton: {
+    flex: 1,
+    padding: 15,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#007bff',
+  },
+  tabText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  scroll: {
     padding: 10,
   },
   listItem: {
-    flexDirection: 'row',
     backgroundColor: '#ffffff',
-    padding: 15,
+    padding: 20,
+    borderRadius: 8,
     marginBottom: 10,
-    borderRadius: 5,
-  },
-  textContainer: {
-    flex: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 6,
   },
   title: {
+    fontSize: 18,
     fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
+    color: '#333',
   },
   details: {
-    fontSize: 14,
-    marginBottom: 5,
+    fontSize: 16,
+    color: '#666',
+    marginTop: 5,
   },
   date: {
-    fontSize: 12,
+    fontSize: 14,
     color: '#888',
     textAlign: 'right',
   },
-  reviewContainer: {
-    marginTop: 10,
+});
+
+export default MyDonation;*/
+
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import axios from 'axios';
+import { AppContext } from '../AppContext';
+
+const MyDonation = ({ navigation }) => {
+  const [activeTab, setActiveTab] = useState('리뷰 기록');
+  const [donations, setDonations] = useState([]);
+  const [fundraisings, setFundraisings] = useState([]);
+  const [expandedId, setExpandedId] = useState(null);
+  const { apiUrl, id } = useContext(AppContext);
+
+  useEffect(() => {
+    fetchDonations();
+    fetchFundraisings();
+  }, []);
+
+  const fetchDonations = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/donations/board/${id}`);
+      setDonations(response.data);
+    } catch (error) {
+      console.error('Failed to fetch donations:', error);
+    }
+  };
+
+  const fetchFundraisings = async () => {
+    try {
+      const response = await axios.get(`${apiUrl}/fundraising_user/totals/${id}`);
+      setFundraisings(response.data);
+    } catch (error) {
+      console.error('Failed to fetch fundraisings:', error);
+    }
+  };
+
+  const toggleExpand = (itemId) => {
+    setExpandedId(expandedId === itemId ? null : itemId);
+  };
+
+  const renderContent = () => {
+    if (activeTab === '리뷰 기록') {
+      return donations.map((donation, index) => (
+        <TouchableOpacity key={index} onPress={() => navigation.navigate('ReceivedReviews', { boardId: donation.board_id })}
+          style={styles.listItem}>
+          <Text style={styles.title}>{donation.title}</Text>
+          <Text style={styles.details}>{`${donation.item} - ${donation.text}`}</Text>
+          <Text style={styles.date}>게시일: {new Date(donation.day).toLocaleDateString()}</Text>
+        </TouchableOpacity>
+      ));
+    } else {
+      return fundraisings.map((fundraising, index) => (
+        <TouchableOpacity key={index} onPress={() => toggleExpand(fundraising.id)} style={styles.listItem}>
+          <Text style={styles.title}>{fundraising.title}</Text>
+          <Text style={styles.details} >{`모금액: ${fundraising.amount}원`}</Text>
+          {expandedId === fundraising.id && (
+            <Text style={styles.details}>{`내용: ${fundraising.text}`}</Text>
+          )}
+        </TouchableOpacity>
+      ));
+    }
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.tabBar}>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === '리뷰 기록' && styles.activeTab]}
+          onPress={() => setActiveTab('리뷰 기록')}
+        >
+          <Text style={styles.tabText}>리뷰 기록</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.tabButton, activeTab === '모금 기록' && styles.activeTab]}
+          onPress={() => setActiveTab('모금 기록')}
+        >
+          <Text style={styles.tabText}>모금 기록</Text>
+        </TouchableOpacity>
+      </View>
+      <ScrollView style={styles.scroll}>
+        {renderContent()}
+      </ScrollView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f8f8f8',
   },
-  reviewTitle: {
+  tabBar: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    borderBottomWidth: 2,
+    borderBottomColor: '#ccc',
+  },
+  tabButton: {
+    flex: 1,
+    padding: 15,
+    alignItems: 'center',
+    borderBottomWidth: 3,
+    borderBottomColor: 'transparent',
+  },
+  activeTab: {
+    borderBottomColor: '#007bff',
+  },
+  tabText: {
+    fontSize: 16,
     fontWeight: 'bold',
-    fontSize: 14,
+    color: '#333',
   },
-  reviewText: {
-    fontSize: 14,
+  scroll: {
+    padding: 10,
+  },
+  listItem: {
+    backgroundColor: '#ffffff',
+    padding: 20,
+    borderRadius: 8,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 5,
+    elevation: 6,
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  details: {
+    fontSize: 16,
     color: '#666',
+    marginTop: 5,
+  },
+  date: {
+    fontSize: 14,
+    color: '#888',
+    textAlign: 'right',
   },
 });
 
 export default MyDonation;
-
-

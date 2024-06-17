@@ -28,7 +28,9 @@ import HomeBulletin from './screens/HomeBulletin';  //홈화면에서 보는 게
 import MyPosts from './screens/MyPosts'; //게시글 목록화면
 import MyDonation from './screens/MyDonation'; //기부기록 확인
 import ReviewMakeScreen from './screens/ReviewMakeScreen';
-import BulletinUpdate from './screens/BulletinUpdate';
+import BulletinUpdate from './screens/BulletinUpdate';  //게시글 수정화면
+import DonationPayScreen from './screens/DonationPayScreen'; //기부결제화면
+import ReceivedReviews from './screens/ReceivedReviews';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator(); // 추가
 
@@ -143,6 +145,11 @@ function AllFundStack() {
         component={FundraisingBulletin}
         options={{ headerTitle: '모금 게시글', headerTitleAlign: 'center' }}
       />
+      <Stack.Screen
+        name="DonationPayScreen" 
+        component={DonationPayScreen}
+        options={{ headerTitle: '기부 결제', headerTitleAlign: 'center' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -231,6 +238,10 @@ function ProfileStack({ setIsLoggedIn }) {
       <Stack.Screen
         name="MyDonation" component={MyDonation}
         options={{ headerTitle: '기부기록', headerTitleAlign: 'center' }}
+      />
+      <Stack.Screen
+        name="ReceivedReviews" component={ReceivedReviews}
+        options={{ headerTitle: '리뷰', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );

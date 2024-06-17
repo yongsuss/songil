@@ -355,12 +355,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 function Bulletin({ route, navigation }) {
     const { id, nickname, azureUrl } = useContext(AppContext);
-    const { board } = route.params;
+    const { board, selectedImage } = route.params;
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    
 
     useEffect(() => {
         fetchComments();
@@ -493,7 +493,7 @@ function Bulletin({ route, navigation }) {
             <Text style={styles.title}>{board.title}</Text>
             <Text style={styles.content}>닉네임: {board.nickname}</Text>
             <Text style={styles.content}>필요한 물품: {board.item}</Text>
-            <Text style={styles.content}>내용: {board.text}</Text>
+            <Text style={styles.content}>-내용-: {board.text}</Text>
             {board.image && (
                 <TouchableOpacity onPress={() => handleImagePress(azureUrl + '/board/' + board.image)}>
                     <Image source={{ uri: azureUrl + '/board/' + board.image }} style={styles.boardImage} />

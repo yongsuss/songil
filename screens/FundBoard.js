@@ -56,11 +56,13 @@ function FundBoard({ navigation, route }) {
   };
 
   const navigateToBulletin = (board) => {  //게시글 작성으로 가기
-    navigation.navigate('Bulletin', { board });
+    navigation.navigate('Bulletin', { board,
+      selectedImage: board.image });
   };
 
   const filteredBoards = boards
     .filter(board => board.title.toLowerCase().includes(searchQuery.toLowerCase()))
+    .filter(board => board.state !== false) // board.state가 false가 아닌 것만 필터링
     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const totalPages = Math.ceil(boards.length / itemsPerPage);
