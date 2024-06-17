@@ -220,15 +220,17 @@ const styles = StyleSheet.create({
 
 export default DeliveryScreen;
 */
-import React, { useContext, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import React, { useContext, useState, useEffect } from 'react';
+import { View, Text, TextInput, StyleSheet, Platform, Alert, TouchableOpacity } from 'react-native';
 import { AppContext } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 import axios from 'axios';
 
+
 export default function DeliveryScreen() {
-    const { id, name, phone, apiUrl, authToken } = useContext(AppContext);
+    const { id, name, phone, apiUrl, authToken, address } = useContext(AppContext);
     const route = useRoute();
     const weakId = route.params?.weakId; // 네비게이션 매개변수에서 weakId를 가져옵니다.
     const boardId = route.params?.boardId;
@@ -236,6 +238,21 @@ export default function DeliveryScreen() {
     const [detailAddress, setDetailAddress] = useState('');
     const [basicAddress, setBasicAddress] = useState(''); // 사용자가 직접 입력하는 기본 주소
     const [isAddressValid, setIsAddressValid] = useState(null); // 주소 유효성 상태
+
+    useEffect(() => {
+        setBasicAddress(address);
+      }, []);
+
+      async function schedulePushNotification() {//알림 보내기
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: "알림 제목",
+            body: '이것은 테스트 알림입니다.',
+            data: { data: 'goes here' },
+          },
+          trigger: { seconds: 2 },
+        });
+      }
 
     const handlePriceCheck = async () => {
         console.log({
@@ -280,6 +297,8 @@ export default function DeliveryScreen() {
 
             const orderId = response.data;
             Alert.alert("Order Success", `Order ID: ${orderId}`);
+            
+            schedulePushNotification();//취약계층에게 알림보내기
 
             // 주문 성공 후, 기부 추가 API 호출
             try {
@@ -425,53 +444,3 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 });
-
-// 푸시 알림 전송 함수
-async function sendPushNotification(expoPushToken) {
-    const message = {
-      to: expoPushToken,
-      sound: 'default',
-      title: 'Original Title',
-      body: 'And here is the body!',
-      data: { someData: 'goes here' },
-    };
-  
-    await fetch('https://exp.host/--/api/v2/push/send', {
-      method: 'POST',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(message),
-    });
-  }
-  
-  // 푸시 알림을 위한 등록 함수
-  async function registerForPushNotificationsAsync() {
-    let token;
-  
-    if (Platform.OS === 'android') {
-      // 안드로이드 푸시 알림 채널 설정
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#FF231F7C',
-      });
-    }
-  
-    // 디바이스에서 푸시 알림 권한 요청
-    const { status: existingStatus } = await Notifications.getPermissionsAsync();
-    let finalStatus = existingStatus;
-    if (existingStatus !== 'granted') {
-      const { status } = await Notifications.requestPermissionsAsync();
-      finalStatus = status;
-    }
-    if (finalStatus !== 'granted') {
-      alert('Failed to get push token for push notification!');
-      return;
-    }
-    token = (await Notifications.getExpoPushTokenAsync()).data;
-  
-    return token; // 푸시 토큰 반환
-  }

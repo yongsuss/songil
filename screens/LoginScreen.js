@@ -8,7 +8,7 @@ import axios from "axios";
 
 const LoginScreen = ({ onLoginSuccess }) => {
     const navigation = useNavigation(); // 네비게이션 객체 사용
-    const { setId, setAdmin, setNickname, setAge, setGender, setMessage, setCertification, setNotice, setPhone, setPoint, setRank, setAddress, setProfileimage, apiUrl } = useContext(AppContext);
+    const { setId, setName, setAdmin, setNickname, setAge, setGender, setMessage, setCertification, setNotice, setPhone, setPoint, setRank, setAddress, setProfileimage, setResident, apiUrl } = useContext(AppContext);
     const [idInput, setIdInput] = useState('');
     const [pw, setPw] = useState();
 
@@ -21,6 +21,7 @@ const LoginScreen = ({ onLoginSuccess }) => {
             setId(response.data.id);
             setAdmin(response.data.admin);
             setNickname(response.data.nickname);
+            setName(response.data.name);
             setAge(response.data.age);
             setGender(response.data.gender);
             setMessage(response.data.message);
@@ -30,8 +31,8 @@ const LoginScreen = ({ onLoginSuccess }) => {
             setPoint(response.data.point);
             setRank(response.data.rank);
             setAddress(response.data.address);
-            setProfileimage(response.data.profileimage);
-           // setResident(response.data.resident);
+            setProfileimage(response.data.image);
+            setResident(response.data.resident);
             onLoginSuccess(true); // 로그인 상태를 true로 변경
           }
           else {
