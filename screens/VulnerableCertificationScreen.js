@@ -89,24 +89,38 @@ const VulnerableCertificationScreen = () => {
     }
   };
 
-  const recognizeText = async () => {//문서번호 추출
+  const recognizeText = async () => {
+    // 문서번호 추출
     const requestBody = {
-      image_url: azureUrl+'/document/'+document // 전달된 url을 requestBody의 image_url에 설정
+      image_url: `${azureUrl}/document/${document}`, // 전달된 URL을 requestBody의 image_url에 설정
     };
   
     try {
-      const response = await axios.post(apiUrl+'/ocr', requestBody);
-      set_d_num1(response.data.document_number1);
-      set_d_num2(response.data.document_number2);
-      set_d_num3(response.data.document_number3);
-      set_d_num4(response.data.document_number4);
+      const response = await axios.post(`${apiUrl}/ocr`, requestBody);
+      const { document_number1, document_number2, document_number3, document_number4 } = response.data;
+  
+      if (document_number1 && document_number2 && document_number3 && document_number4) {
+        set_d_num1(document_number1);
+        set_d_num2(document_number2);
+        set_d_num3(document_number3);
+        set_d_num4(document_number4);
+      } else {
+        console.error('Incomplete data received:', response.data);
+        throw new Error('Incomplete data received from OCR API');
+      }
+  
       return response.data;
     } catch (error) {
-      console.error('Error recognizing text:', error);
+      console.error('Error recognizing text:', error.message);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+      }
       throw error;
     }
   };
-
+  
   const handleOCR = async () => {
     if (selectedImage) {
       setLoading(true);
@@ -120,7 +134,7 @@ const VulnerableCertificationScreen = () => {
       }
     }
   };
-
+  
   const authDocument = async () => {
     const requestBody = {
       doc_ref_no1: d_num1,
@@ -129,18 +143,24 @@ const VulnerableCertificationScreen = () => {
       doc_ref_no4: d_num4,
       resident_number_front: "670108"
     };
-
+  
     console.log(requestBody);
-
+  
     try {
-      const response = await axios.post(apiUrl+'/verify-document', requestBody);
+      const response = await axios.post(`${apiUrl}/verify-document`, requestBody);
+      console.log(response.data);
       return response.data;
     } catch (error) {
-      console.error('Error recognizing text:', error);
+      console.error('Error verifying document:', error.message);
+      if (error.response) {
+        console.error('Error response data:', error.response.data);
+        console.error('Error status:', error.response.status);
+        console.error('Error headers:', error.response.headers);
+      }
       throw error;
     }
   };
-
+  3
   return (
     <ScrollView style={styles.container}>
       <View style={styles.buttonContainer}>
