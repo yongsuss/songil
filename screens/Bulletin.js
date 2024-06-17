@@ -436,7 +436,7 @@ function Bulletin({ route, navigation }) {
     };
 
     const handleEditComment = (comment) => {
-        if (id !== comment.user_id) {
+        if (id !== comment.user_id) { 
             Alert.alert("Error", "You can only edit your own comments.");
             return;
         }

@@ -198,6 +198,7 @@ function FundBoardMake({ navigation }) {
             return;
         }
 
+        if(boardImageFileUri){
         try {//Azure Storage에 올리기
             const fileContent = await FileSystem.readAsStringAsync(boardImageFileUri, { encoding: FileSystem.EncodingType.Base64 });
             const fileArrayBuffer = Uint8Array.from(atob(fileContent), c => c.charCodeAt(0));
@@ -210,6 +211,7 @@ function FundBoardMake({ navigation }) {
           } catch (error) {
             console.error('Error uploading file:', error);
           }
+        }
 
         /*게시판 올리기*/
         const postData = {
