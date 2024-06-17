@@ -49,6 +49,7 @@ const FundraisingBulletin = ({ route, navigation }) => {
   }
 
 
+
   return (
     <ScrollView style={styles.container}>
       <Text style={styles.title}>{fundraising.title}</Text>
@@ -58,7 +59,7 @@ const FundraisingBulletin = ({ route, navigation }) => {
         </TouchableOpacity>
       )}
       <View style={styles.infoContainer}>
-        <Text style={styles.category}>{getCategoryName(fundraising.category)}</Text>
+        <Text style={styles.category}>{`취약계층-${getCategoryName(fundraising.category)}`}</Text>
         <Text style={styles.description}>{fundraising.text}</Text>
         <View style={styles.progressBarWrapper}>
           <View style={styles.progressBarContainer}>
@@ -68,7 +69,8 @@ const FundraisingBulletin = ({ route, navigation }) => {
         <Text style={styles.amount}>{`현재 모금액: ${formatAmount(fundraising.current)} / 목표액: ${formatAmount(fundraising.amount)}`}</Text>
         <Text style={styles.dates}>{`모금 기간: ${moment(fundraising.startdate).format('YYYY-MM-DD')} ~ ${moment(fundraising.enddate).format('YYYY-MM-DD')}`}</Text>
         <Text style={styles.participants}>{`참여자 수: ${fundraising.count}명`}</Text> 
-        <TouchableOpacity style={styles.donateButton} onPress={() => navigation.navigate('Donate', { fundraisingId: fundraising.id })}>
+        <TouchableOpacity style={styles.donateButton}
+         onPress={() => navigation.navigate('DonationPayScreen', { fundraisingId: fundraising.id })}>
           <Text style={styles.donateButtonText}>기부하기</Text>
         </TouchableOpacity>
       </View>
