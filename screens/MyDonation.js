@@ -388,7 +388,7 @@ const MyDonation = ({ navigation }) => {
           style={[styles.tabButton, activeTab === '리뷰 기록' && styles.activeTab]}
           onPress={() => setActiveTab('리뷰 기록')}
         >
-          <Text style={styles.tabText}>리뷰 기록</Text>
+          <Text style={styles.tabText}>후기 기록</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.tabButton, activeTab === '모금 기록' && styles.activeTab]}

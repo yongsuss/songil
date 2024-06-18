@@ -201,7 +201,7 @@ function FundBoardStack() {
       <Stack.Screen
         name="ReviewMakeScreen" 
         component={ReviewMakeScreen}
-        options={{ headerTitle: '리뷰 작성', headerTitleAlign: 'center' }}
+        options={{ headerTitle: '후기 작성', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
@@ -241,7 +241,7 @@ function ProfileStack({ setIsLoggedIn }) {
       />
       <Stack.Screen
         name="ReceivedReviews" component={ReceivedReviews}
-        options={{ headerTitle: '리뷰', headerTitleAlign: 'center' }}
+        options={{ headerTitle: '후기', headerTitleAlign: 'center' }}
       />
     </Stack.Navigator>
   );
