@@ -459,13 +459,11 @@ function Bulletin({ route, navigation }) {
     };
 
     const handleImagePress = (imageUrl) => {
-        setSelectedImage(imageUrl);
         setIsModalVisible(true);
     };
 
     const closeModal = () => {
         setIsModalVisible(false);
-        setSelectedImage(null);
     };
 
     const isOwner = id === board.id; // 게시글 소유자인지 확인
