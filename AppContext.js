@@ -90,6 +90,10 @@ const AppProvider = ({ children }) => {
     };
     socket.onclose = (event) => {
       console.log('웹소켓 종료: ', event);
+      // 재연결 로직 추가
+      setTimeout(() => {
+        setWs(new WebSocket(`ws://20.39.190.194/websocket`));
+      }, 1000); // 1초 후 재연결 시도
     };
     setWs(socket);
 
