@@ -236,8 +236,15 @@ function FundBoardMake({ navigation }) {
                 navigation.goBack();
             })
             .catch(error => {
-            console.error('POST 요청 실패:', error);
-            Alert.alert("생성 실패", "게시글 생성 실패");
+                if (error.response && error.response.status === 422) {
+                    //console.error('POST 요청 실패:', error);
+                    Alert.alert("생성 실패", "게시글 생성 실패");
+                    // 필요한 경우 여기에 로그를 남기거나 상태를 업데이트할 수 있습니다.
+                    console.log('422 Method Not Allowed - The method is not supported for the requested URL.');
+                    
+                  }
+            
+           // Alert.alert("생성 실패", "게시글 생성 실패");
             // 에러 처리
         });
     }

@@ -47,9 +47,6 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     navigation.navigate('MyInfoScreen');
   };
 
-  const handleSettings = () => {
-    navigation.navigate('SettingsScreen');
-  };
 
   const handleVulnerableCertification = () => {
     navigation.navigate('VulnerableCertificationScreen');
@@ -131,9 +128,6 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuItem} onPress={mydonation}>
         <Text style={styles.menuText}>기부기록</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.menuItem} onPress={handleSettings}>
-        <Text style={styles.menuText}>환경설정</Text>
       </TouchableOpacity>
       <TouchableOpacity style={styles.menuItem} onPress={handleVulnerableCertification}>
         <Text style={styles.menuText}>취약계층인증</Text>
