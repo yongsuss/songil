@@ -222,10 +222,11 @@ export default DeliveryScreen;
 */
 import React, { useContext, useState } from 'react';
 import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
-import { AppContext } from '../AppContext';
+import { AppContext, apiUrl } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native'; // 네비게이션 훅 가져오기
 
 export default function DeliveryScreen() {
     const { id, name, phone, apiUrl, authToken } = useContext(AppContext);
@@ -236,6 +237,22 @@ export default function DeliveryScreen() {
     const [detailAddress, setDetailAddress] = useState('');
     const [basicAddress, setBasicAddress] = useState(''); // 사용자가 직접 입력하는 기본 주소
     const [isAddressValid, setIsAddressValid] = useState(null); // 주소 유효성 상태
+    const navigation = useNavigation(); // 네비게이션 객체 사용
+
+    const notification = async () => { //알림
+        const postData = {
+          id: weakId,
+          title: "배송이 시작되었습니다.",
+          message: "배송을 받으셨으면 후기 작성해주세요."
+        };
+    
+        try {
+            const response = await axios.post(`${apiUrl}/notification/send`,postData);
+            console.log(response.data);
+        } catch (error) {
+            console.log('알림전송 실패:', error);
+        }
+    };
 
     const handlePriceCheck = async () => {
         console.log({
@@ -255,9 +272,9 @@ export default function DeliveryScreen() {
             });
             Alert.alert("가격 정보", `가격: ${response.data.price}원`);
         } catch (error) {
-            console.error('가격 조회 실패:', error);
+            //console.error('가격 조회 실패:', error);
             const errorMessage = error.response?.data?.detail || error.message;
-            Alert.alert("오류", `가격 조회에 실패했습니다: ${errorMessage}`);
+            Alert.alert("가격 조회 실패", `상대 혹은 당신의 주소가 유효하지 않습니다.`);
         }
     };
 
@@ -287,17 +304,33 @@ export default function DeliveryScreen() {
                     board_id: boardId,
                     id: id // 사용자 ID를 기부에 추가
                 });
-                Alert.alert("Donation Success", `Donation ID: ${donationResponse.data.donation_id}`);
+                Alert.alert("물품 전송!", `물품이 전송될것입니다.`);
+                notification();
+                navigation.goBack(); // 이전 화면으로 돌아가기
+
             } catch (error) {
-                console.error('Donation creation failed:', error);
-                const errorMessage = error.response?.data?.detail || error.message;
-                Alert.alert("Error", `기부 생성에 실패했습니다: ${errorMessage}`);
+                //console.error('Donation creation failed:', error);
+                
+                //Alert.alert("기부 생성 실패", `${errorMessage}`);
+                if (error.response && error.response.status === 400) {
+                    Alert.alert("기부 생성 실패", `${errorMessage}`);
+                    
+                    // 필요한 경우 여기에 로그를 남기거나 상태를 업데이트할 수 있습니다.
+                    console.log('400 Method Not Allowed - The method is not supported for the requested URL.');
+                  }
             }
 
         } catch (error) {
-            console.error('Order creation failed:', error);
-            const errorMessage = error.response?.data?.detail || error.message;
-            Alert.alert("Error", `주문 생성에 실패했습니다: ${errorMessage}`);
+            //console.error('Order creation failed:', error);
+            //const errorMessage = error.response?.data?.detail || error.message;
+            //Alert.alert("Error", `주문 생성에 실패했습니다: ${errorMessage}`);
+            if (error.response && error.response.status === 400) {
+                Alert.alert("기부 생성 실패", `주문 생성에 실패했습니다/상대 혹은 당신의 주소가 유효하지 않습니다.`);
+                
+                // 필요한 경우 여기에 로그를 남기거나 상태를 업데이트할 수 있습니다.
+                console.log('400 Method Not Allowed - The method is not supported for the requested URL.');
+              }
+            
         }
     };
 
@@ -309,8 +342,14 @@ export default function DeliveryScreen() {
                 Alert.alert("주소 확인", "유효한 주소입니다.");
             }
         } catch (error) {
-            console.error('주소 확인 실패:', error);
-            Alert.alert("Error", "주소 확인에 실패했습니다.");
+            if (error.response && error.response.status === 400) {
+                Alert.alert("오류", "주소 확인에 실패했습니다.");
+                // 필요한 경우 여기에 로그를 남기거나 상태를 업데이트할 수 있습니다.
+                console.log('400 Method Not Allowed - The method is not supported for the requested URL.');
+                
+              }
+            //console.error('주소 확인 실패:', error);
+            
         }
     };
 

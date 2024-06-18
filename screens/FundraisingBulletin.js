@@ -1,10 +1,10 @@
 //모금게시글 화면
-import React, { useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect, useCallback  } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, ActivityIndicator, Modal, Pressable } from 'react-native';
 import axios from 'axios';
 import moment from 'moment';
 import { AppContext } from '../AppContext';
-
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 
 const FundraisingBulletin = ({ route, navigation }) => {
   const { fundraisingId } = route.params; // Route에서 전달받은 fundraisingId
@@ -14,21 +14,24 @@ const FundraisingBulletin = ({ route, navigation }) => {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
-  useEffect(() => {
-    const fetchFundraisingDetails = async () => {
-      try {
-        const response = await axios.get(`http://20.39.190.194/fundraisings/prove/true`);
-        const fundraisingData = response.data.find(item => item.id === fundraisingId);
-        setFundraising(fundraisingData);
-      } catch (error) {
-        console.error('Failed to fetch fundraising details:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchFundraisingDetails = async () => {
+        setLoading(true);
+        try {
+          const response = await axios.get(`http://20.39.190.194/fundraisings/prove/true`);
+          const fundraisingData = response.data.find(item => item.id === fundraisingId);
+          setFundraising(fundraisingData);
+        } catch (error) {
+          console.error('Failed to fetch fundraising details:', error);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-    fetchFundraisingDetails();
-  }, [fundraisingId]);
+      fetchFundraisingDetails();
+    }, [fundraisingId])
+  );
 
     const handleImagePress = (imageUrl) => {
         setSelectedImage(imageUrl);

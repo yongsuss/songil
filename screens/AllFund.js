@@ -1,6 +1,7 @@
 //모금 화면
 
 /*
+
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native';
 import axios from 'axios';
@@ -49,7 +50,13 @@ const FundraiserScreen = () => {
   };
 
   const navigateToDetails = (fundraising) => {
-    navigation.navigate('FundraisingBulletin', { fundraisingId: fundraising.id });
+    const now = moment();
+    const isCurrent = now.isAfter(moment(fundraising.startdate)) && now.isBefore(moment(fundraising.enddate));
+    if (isCurrent) {
+      navigation.navigate('FundraisingBulletin', { fundraisingId: fundraising.id });
+    } else {
+      alert('이 게시글은 현재 진행 중이지 않습니다.');
+    }
   };
 
   const getCurrentDateFundraisings = () => {
@@ -86,6 +93,18 @@ const FundraiserScreen = () => {
     }
   };
 
+  const formatAmount = (amount) => {
+    if (amount >= 100000000) {
+      return `${parseInt(amount / 100000000)}억원`;
+    } else if (amount >= 10000) {
+      return `${parseInt(amount / 10000)}만원`;
+    } else if (amount >= 1000) {
+      return `${parseInt(amount / 1000)}천원`;
+    } else {
+      return `${amount}원`;
+    }
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -108,7 +127,7 @@ const FundraiserScreen = () => {
       <ScrollView style={styles.listContainer}>
         {fundraisingData().map((fundraising, index) => (
           <TouchableOpacity key={index} style={styles.listItem} onPress={() => navigateToDetails(fundraising)}>
-            {fundraising.image && <Image source={{ uri: `${azureUrl}/fundraising/prove/${fundraising.image}` }} style={styles.image} />}
+            {fundraising.image && <Image source={{ uri: azureUrl+'/fundraising/'+fundraising.image }} style={styles.image} />}
             <View style={styles.textContainer}>
               <Text style={styles.title}>{fundraising.title}</Text>
               <Text style={styles.nickname}>{getCategoryName(fundraising.category)}</Text>
@@ -116,9 +135,9 @@ const FundraiserScreen = () => {
                 <View style={styles.progressBar}>
                   <View style={[styles.progress, { width: `${(fundraising.current / fundraising.amount * 100).toFixed(2)}%` }]} />
                 </View>
-                <Text style={styles.goalAmount}>{`${fundraising.current} / ${fundraising.amount}`}</Text>
+                <Text style={styles.goalAmount}>{formatAmount(fundraising.current)} / {formatAmount(fundraising.amount)}</Text>
               </View>
-              <Text style={styles.dates}>{`기간: ${moment(fundraising.startdate).format('YYYY-MM-DD')} ~ ${moment(fundraising.enddate).format('YYYY-MM-DD')}`}</Text>
+              <Text style={styles.dates}>{`기간 - ${moment(fundraising.startdate).format('YYYY-MM-DD')} ~ ${moment(fundraising.enddate).format('YYYY-MM-DD')}`}</Text>
             </View>
           </TouchableOpacity>
         ))}
@@ -234,7 +253,8 @@ const styles = StyleSheet.create({
   dates: {
     fontSize: 12,
     color: '#888',
-    marginTop: 5
+    marginTop: 5,
+    textAlign: 'right', // 텍스트를 오른쪽으로 정렬
   },
   pagination: {
     flexDirection: 'row',
@@ -251,17 +271,17 @@ const styles = StyleSheet.create({
   },
   pageText: {
     color: '#000',
+    fontWeight: 'bold',
   }
 });
 
-export default FundraiserScreen;
-*/
+export default FundraiserScreen;*/
 
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState , useCallback  } from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, TouchableOpacity, TextInput } from 'react-native';
 import axios from 'axios';
 import moment from 'moment';
-import { useNavigation } from '@react-navigation/native'; // React Navigation 추가
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { AppContext } from '../AppContext';
 
 const FundraiserScreen = () => {
@@ -274,19 +294,21 @@ const FundraiserScreen = () => {
   const itemsPerPage = 10;
   const navigation = useNavigation(); // React Navigation 사용
 
-  useEffect(() => {
-    const fetchFundraisings = async () => {
-      try {
-        const response = await axios.get('http://20.39.190.194/fundraisings/prove/true');
-        setFundraisings(response.data);
-        setFilteredFundraisings(response.data);
-      } catch (error) {
-        console.error('Failed to fetch fundraisings:', error);
-      }
-    };
+  useFocusEffect(
+    useCallback(() => {
+      const fetchFundraisings = async () => {
+        try {
+          const response = await axios.get('http://20.39.190.194/fundraisings/prove/true');
+          setFundraisings(response.data);
+          setFilteredFundraisings(response.data);
+        } catch (error) {
+          console.error('Failed to fetch fundraisings:', error);
+        }
+      };
 
-    fetchFundraisings();
-  }, []);
+      fetchFundraisings();
+    }, [])
+  );
 
   const handleSearch = (text) => {
     setSearchText(text);

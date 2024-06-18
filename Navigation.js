@@ -107,6 +107,11 @@ function HomeStack() {
         component={HomeBulletin}
         options={{ headerTitle: '게시글', headerTitleAlign: 'center' }}
       />
+      <Stack.Screen
+        name="DeliveryScreen" 
+        component={DeliveryScreen}
+        options={{ headerTitle: '배송 화면', headerTitleAlign: 'center' }}
+      />
     </Stack.Navigator>
   );
 }
@@ -218,10 +223,6 @@ function ProfileStack({ setIsLoggedIn }) {
       <Stack.Screen
         name="MyInfoScreen" component={MyInfoScreen}
         options={{ headerTitle: '내정보', headerTitleAlign: 'center' }}
-      />
-      <Stack.Screen
-        name="SettingsScreen" component={SettingsScreen}
-        options={{ headerTitle: '환경설정', headerTitleAlign: 'center' }}
       />
       <Stack.Screen
         name="VulnerableCertificationScreen" component={VulnerableCertificationScreen}
