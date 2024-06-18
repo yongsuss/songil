@@ -1,6 +1,4 @@
 //게시글 
-
-
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Modal, Alert, Image, Pressable } from 'react-native';
 import { AppContext } from '../AppContext';
@@ -8,12 +6,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 function Bulletin({ route, navigation }) {
     const { id, nickname, azureUrl } = useContext(AppContext);
-    const { board } = route.params;
+    const { board} = route.params;
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    const [selectedImage, setSelectedImage] = useState(null);
+    const [selectedImage, setSelectedImage] = useState(null);//주시하기
 
     useEffect(() => {
         fetchComments();
@@ -89,7 +87,7 @@ function Bulletin({ route, navigation }) {
     };
 
     const handleEditComment = (comment) => {
-        if (id !== comment.user_id) {
+        if (id !== comment.user_id) { 
             Alert.alert("Error", "You can only edit your own comments.");
             return;
         }
@@ -112,13 +110,11 @@ function Bulletin({ route, navigation }) {
     };
 
     const handleImagePress = (imageUrl) => {
-        setSelectedImage(imageUrl);
         setIsModalVisible(true);
     };
 
     const closeModal = () => {
         setIsModalVisible(false);
-        setSelectedImage(null);
     };
 
     const isOwner = id === board.id; // 게시글 소유자인지 확인

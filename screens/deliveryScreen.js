@@ -5,6 +5,7 @@ import { View, Text, Button, TextInput, StyleSheet, Alert, TouchableOpacity } fr
 import { AppContext } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 import axios from 'axios';
 
 export default function DeliveryScreen() {
@@ -16,6 +17,11 @@ export default function DeliveryScreen() {
     const [detailAddress, setDetailAddress] = useState('');
     const [basicAddress, setBasicAddress] = useState(''); // User will input this manually
     const [isAddressValid, setIsAddressValid] = useState(null); // Address validity state
+
+    const [expoPushToken, setExpoPushToken] = useState(''); // Expo 푸시 토큰을 저장할 상태
+    const [notification, setNotification] = useState(false); // 수신된 알림을 저장할 상태
+    const notificationListener = useRef(); // 알림 수신 리스너를 참조
+    const responseListener = useRef(); // 알림 응답 리스너를 참조
 
     const handlePriceCheck = async () => {
         console.log({
@@ -58,14 +64,13 @@ export default function DeliveryScreen() {
                 }
             });
             Alert.alert("Order Success", `Order ID: ${response.data}`);
+            await sendPushNotification(expoPushToken); // 취약계층에게 푸시 알림 전송
         } catch (error) {
             console.error('Order creation failed:', error);
             const errorMessage = error.response?.data?.detail || error.message;
             Alert.alert("Error", `주문 생성에 실패했습니다: ${errorMessage}`);
         }
     };
-
-
 
     const handleCheckAddress = async () => {
         try {
@@ -79,6 +84,27 @@ export default function DeliveryScreen() {
             Alert.alert("Error", "주소 확인에 실패했습니다.");
         }
     };
+
+    useEffect(() => {
+        // 푸시 알림을 위한 등록 함수 호출
+        registerForPushNotificationsAsync().then(token => setExpoPushToken(token));
+    
+        // 알림 수신 리스너 설정
+        notificationListener.current = Notifications.addNotificationReceivedListener(notification => {
+          setNotification(notification);
+        });
+    
+        // 알림 응답 리스너 설정
+        responseListener.current = Notifications.addNotificationResponseReceivedListener(response => {
+          console.log(response);
+        });
+    
+        // 컴포넌트 언마운트 시 리스너 정리
+        return () => {
+          Notifications.removeNotificationSubscription(notificationListener.current);
+          Notifications.removeNotificationSubscription(responseListener.current);
+        };
+      }, []);
 
     return (
         <View style={styles.container}>
@@ -400,5 +426,52 @@ const styles = StyleSheet.create({
     },
 });
 
-
-
+// 푸시 알림 전송 함수
+async function sendPushNotification(expoPushToken) {
+    const message = {
+      to: expoPushToken,
+      sound: 'default',
+      title: 'Original Title',
+      body: 'And here is the body!',
+      data: { someData: 'goes here' },
+    };
+  
+    await fetch('https://exp.host/--/api/v2/push/send', {
+      method: 'POST',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(message),
+    });
+  }
+  
+  // 푸시 알림을 위한 등록 함수
+  async function registerForPushNotificationsAsync() {
+    let token;
+  
+    if (Platform.OS === 'android') {
+      // 안드로이드 푸시 알림 채널 설정
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#FF231F7C',
+      });
+    }
+  
+    // 디바이스에서 푸시 알림 권한 요청
+    const { status: existingStatus } = await Notifications.getPermissionsAsync();
+    let finalStatus = existingStatus;
+    if (existingStatus !== 'granted') {
+      const { status } = await Notifications.requestPermissionsAsync();
+      finalStatus = status;
+    }
+    if (finalStatus !== 'granted') {
+      alert('Failed to get push token for push notification!');
+      return;
+    }
+    token = (await Notifications.getExpoPushTokenAsync()).data;
+  
+    return token; // 푸시 토큰 반환
+  }

@@ -23,6 +23,9 @@ const ProfileScreen = ({ navigation, setIsLoggedIn }) => {
     azureUrl
   } = useContext(AppContext);
 
+  useEffect(() => {
+    
+  }, []);
 
   const handleLogout = () => {
     setIsLoggedIn(false);
