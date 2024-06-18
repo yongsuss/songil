@@ -120,7 +120,7 @@ const RankScreen = () => {
       <Text style={styles.rank}>{(currentPage - 1) * itemsPerPage + index + 1}</Text>
       <Image source={getImageForAmount(item.total_amount)} style={styles.image} />
       <View style={styles.textContainer}>
-        <Text style={styles.text}>{`${item.user_id}`}</Text>
+        <Text style={styles.text}>{`${item.nickname}`}</Text>
         <Text style={styles.text}>{`모금액: ${item.total_amount}원`}</Text>
       </View>
     </View>

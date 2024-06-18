@@ -1,3 +1,4 @@
+//게시글 
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Modal, Alert, Image, Pressable } from 'react-native';
 import { AppContext } from '../AppContext';
@@ -5,12 +6,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 
 function Bulletin({ route, navigation }) {
     const { id, nickname, azureUrl } = useContext(AppContext);
-    const { board, selectedImage } = route.params;
+    const { board} = route.params;
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [isModalVisible, setIsModalVisible] = useState(false);
-    
+    const [selectedImage, setSelectedImage] = useState(null);//주시하기
 
     useEffect(() => {
         fetchComments();
@@ -141,7 +142,7 @@ function Bulletin({ route, navigation }) {
             <Text style={styles.title}>{board.title}</Text>
             <Text style={styles.content}>닉네임: {board.nickname}</Text>
             <Text style={styles.content}>필요한 물품: {board.item}</Text>
-            <Text style={styles.content}>-내용-: {board.text}</Text>
+            <Text style={styles.content}>내용: {board.text}</Text>
             {board.image && (
                 <TouchableOpacity onPress={() => handleImagePress(azureUrl + '/board/' + board.image)}>
                     <Image source={{ uri: azureUrl + '/board/' + board.image }} style={styles.boardImage} />
@@ -193,7 +194,7 @@ function Bulletin({ route, navigation }) {
             </TouchableOpacity>
             {isOwner && (
             <TouchableOpacity style={styles.donateButton} onPress={navigateReviewMakeScreen}>
-                <Text style={styles.donateButtonText}>리뷰 작성</Text>
+                <Text style={styles.donateButtonText}>후기 작성</Text>
             </TouchableOpacity>
         )}
             

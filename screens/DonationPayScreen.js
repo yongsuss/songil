@@ -24,7 +24,7 @@ const DonationPayScreen = () => {
       });
 
       if (response.status === 200) {
-        Alert.alert("감사합니다!", `당신의 $${amount}원이 정상적으로 입금되었습니다.`);
+        Alert.alert("감사합니다!", `당신의 ${amount}원이 정상적으로 입금되었습니다.`);
       } else {
         throw new Error('Unable to process the donation');
       }

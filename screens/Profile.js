@@ -1,3 +1,4 @@
+//프로필 화면
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, Image, StyleSheet, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import { AppContext } from '../AppContext';
