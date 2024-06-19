@@ -103,8 +103,10 @@ function FundBoard({ navigation, route }) {
         <Text style={styles.noBoardsText}>해당 지역에 게시글이 없습니다.</Text>
       )}
       <View style={styles.pagination}>
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-          <Button key={page} title={page.toString()} onPress={() => setCurrentPage(page)} />
+      {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+          <TouchableOpacity key={page} style={[styles.pageButton, currentPage === page && styles.selectedPageButton]} onPress={() => setCurrentPage(page)}>
+            <Text style={styles.pageButtonText}>{page}</Text>
+          </TouchableOpacity>
         ))}
       </View>
     </ScrollView>
@@ -166,14 +168,25 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20,
-    backgroundColor: '#a0a0a0'
   },
   noBoardsText: {
     textAlign: 'center',
     fontSize: 16,
     marginTop: 20,
     color: '#666',
-  }
+  },
+  pageButton: {
+    backgroundColor: '#ddd',
+    padding: 10,
+    margin: 5,
+    borderRadius: 5,
+  },
+  selectedPageButton: {
+    backgroundColor: '#a0a0a0',
+  },
+  pageButtonText: {
+    color: '#fff',
+  },
 });
 
 export default FundBoard;
