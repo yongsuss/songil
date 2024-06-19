@@ -1,10 +1,11 @@
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Text, TextInput, StyleSheet, Alert, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, StyleSheet, Platform, Alert, TouchableOpacity } from 'react-native';
 import { AppContext } from '../AppContext';
 import { Picker } from '@react-native-picker/picker';
 import { useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native'; // 네비게이션 훅 가져오기
+
 
 
 export default function DeliveryScreen() {
@@ -32,6 +33,10 @@ export default function DeliveryScreen() {
             console.log('알림전송 실패:', error);
         }
     };
+
+    useEffect(() => {
+        setBasicAddress(address);
+      }, []);
 
     useEffect(() => {
         setBasicAddress(address);
