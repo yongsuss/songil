@@ -34,7 +34,7 @@ const Home = () => {
       
       else {
     // 다른 종류의 오류에 대해 처리합니다.
-         console.error('Error fetching region boards:', error);
+        // console.error('Error fetching region boards:', error);
       }
     }
   };
@@ -95,7 +95,7 @@ return (
       showsHorizontalScrollIndicator={false}
     >
       {regionBoards.length > 0 ? (
-        regionBoards.filter(board => board.state !== false) // state가 false가 아닌 게시글만 필터링
+       regionBoards.filter(board => board.board.state !== false) // state가 false가 아닌 게시글만 필터링
         .map((board, index) => (
           <TouchableOpacity key={index} onPress={() => navigateToBulletin(board)}>
             <View style={styles.boardCard}>

@@ -79,7 +79,7 @@ export default function DeliveryScreen() {
             });
 
             const orderId = response.data;
-            Alert.alert("Order Success", `Order ID: ${orderId}`);
+            
 
             // 주문 성공 후, 기부 추가 API 호출
             try {

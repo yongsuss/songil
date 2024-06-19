@@ -68,6 +68,7 @@ function BulletinUpdate({ route, navigation }) {
         }
     };
 
+    
     return (
         <ScrollView
             style={styles.container}

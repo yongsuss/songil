@@ -46,7 +46,7 @@ const RankScreen = () => {
     if (amount < 100000) return require('../assets/3.png');
     if (amount < 500000) return require('../assets/4.png');
     if (amount < 1000000) return require('../assets/5.png');
-    return require('../assets/pngegg6.png');
+    return require('../assets/6.png');
   };
 
   const renderItem = ({ item, index }) => (
