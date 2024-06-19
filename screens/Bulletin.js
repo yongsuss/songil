@@ -3,7 +3,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Modal, Alert, Image, Pressable } from 'react-native';
 import { AppContext } from '../AppContext';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 
 function Bulletin({ route, navigation }) {
