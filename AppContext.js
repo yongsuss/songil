@@ -70,36 +70,47 @@ const AppProvider = ({ children }) => {
 
   };
 
-  useEffect(() => {
-    /*********************웹소켓 연결*********************/
+  /*********************웹소켓 연결*********************/
+  const connectWebSocket = () => {
     const socket = new WebSocket(`ws://20.39.190.194/websocket`);
+
     socket.onopen = () => {
       console.log('웹소켓 연결');
     };
-    // 서버로부터 메시지를 받을 때 호출
+
     socket.onmessage = (event) => {
       const data = event.data;
       const [userId, title, msg] = data.split(':');
       if (userId === id) {
-        schedulePushNotification(title, msg);//취약계층에게 알림보내기
+        schedulePushNotification(title, msg); // 취약계층에게 알림 보내기
       }
       console.log(data);
     };
+
     socket.onerror = (error) => {
       console.log('WebSocket error: ', error);
     };
+
     socket.onclose = (event) => {
       console.log('웹소켓 종료: ', event);
       // 재연결 로직 추가
       setTimeout(() => {
-        setWs(new WebSocket(`ws://20.39.190.194/websocket`));
+        connectWebSocket(); // 재연결 시도
       }, 1000); // 1초 후 재연결 시도
     };
+
     setWs(socket);
+  };
+  /*********************웹소켓 연결*********************/
+
+  useEffect(() => {
+    connectWebSocket();
 
     // 컴포넌트 언마운트 시 웹소켓 연결 해제
     return () => {
-      socket.close();
+      if (ws) {
+        ws.close();
+      }
     };
   }, []);
 

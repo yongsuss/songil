@@ -165,7 +165,8 @@ const styles = StyleSheet.create({
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
-    marginTop: 20
+    marginTop: 20,
+    backgroundColor: '#a0a0a0'
   },
   noBoardsText: {
     textAlign: 'center',
