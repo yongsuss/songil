@@ -20,8 +20,6 @@ const AppProvider = ({ children }) => {
   const [profileimage, setProfileimage] = useState('');
   const [resident, setResident] = useState('');
   const [ws, setWs] = useState(null);  // 웹소켓 상태
-  const [nTitle, setNTitle] = useState('');//알림 타이틀
-  const [nText, setNText] = useState('');//알림 내용
 
   const apiUrl = "http://20.39.190.194"; // API의 기본 URL
   const profileToken = "sp=racwdl&st=2024-05-29T06:45:59Z&se=2024-07-01T14:45:59Z&sv=2022-11-02&sr=c&sig=y8UG%2BXMIhySPhH615bHhGQykSnIK4%2BC0VKS%2B2RwSA%2BI%3D";
@@ -72,33 +70,47 @@ const AppProvider = ({ children }) => {
 
   };
 
-  useEffect(() => {
-    /*********************웹소켓 연결*********************/
+  /*********************웹소켓 연결*********************/
+  const connectWebSocket = () => {
     const socket = new WebSocket(`ws://20.39.190.194/websocket`);
+
     socket.onopen = () => {
       console.log('웹소켓 연결');
     };
-    // 서버로부터 메시지를 받을 때 호출
+
     socket.onmessage = (event) => {
       const data = event.data;
       const [userId, title, msg] = data.split(':');
       if (userId === id) {
-        setNTitle(title);
-        setNText(msg);
-        schedulePushNotification(title, msg);//취약계층에게 알림보내기
+        schedulePushNotification(title, msg); // 취약계층에게 알림 보내기
       }
+      console.log(data);
     };
+
     socket.onerror = (error) => {
-      console.error('WebSocket error: ', error);
+      console.log('WebSocket error: ', error);
     };
+
     socket.onclose = (event) => {
       console.log('웹소켓 종료: ', event);
+      // 재연결 로직 추가
+      setTimeout(() => {
+        connectWebSocket(); // 재연결 시도
+      }, 1000); // 1초 후 재연결 시도
     };
+
     setWs(socket);
+  };
+  /*********************웹소켓 연결*********************/
+
+  useEffect(() => {
+    connectWebSocket();
 
     // 컴포넌트 언마운트 시 웹소켓 연결 해제
     return () => {
-      socket.close();
+      if (ws) {
+        ws.close();
+      }
     };
   }, []);
 

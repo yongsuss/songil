@@ -2,13 +2,12 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
 import axios from 'axios';
-import { AppContext } from '../AppContext';  // 실제 AppContext의 위치에 따라 경로가 달라질 수 있습니다.
+import { AppContext } from '../AppContext';
 
-const MyPosts = ({ navigation }) => {
+function MyPosts({ navigation }) {
   const { id, apiUrl } = useContext(AppContext); // AppContext에서 사용자 ID와 API URL 가져오기
   const [posts, setPosts] = useState([]); // 게시글 상태
 
-  
   useEffect(() => {
     fetchPosts();
   }, [id, apiUrl]);
@@ -51,33 +50,35 @@ const MyPosts = ({ navigation }) => {
   };
 
   const navigateToUpdate = (post) => {
-    console.log("Navigating to BulletinUpdate with:", post);
     navigation.navigate('BulletinUpdate', { post });
   };
+
   return (
     <ScrollView style={styles.container}>
-      {posts.map((post) => (
-        <TouchableOpacity 
+      {posts.length > 0 ? (
+        posts.map((post) => (
+          <TouchableOpacity 
             key={post.board_id} 
             style={styles.postContainer}
-            onPress={() => navigateToUpdate(post)}  // 게시글 클릭 시 업데이트 함수 호출
+            onPress={() => navigateToUpdate(post)}
           >
-          <Text style={styles.title}>{post.title}</Text>
-          <Text style={styles.text} numberOfLines={2}>{post.text}</Text>
-          <Text style={styles.text}>작성일:{post.day}</Text>
-          <TouchableOpacity
-            style={styles.deleteButton}
-            onPress={() => confirmDelete(post.board_id)}
-          >
-            <Text style={styles.deleteButtonText}>삭제</Text>
+            <Text style={styles.title}>{post.title}</Text>
+            <Text style={styles.text} numberOfLines={2}>{post.text}</Text>
+            <Text style={styles.text}>작성일: {post.day}</Text>
+            <TouchableOpacity
+              style={styles.deleteButton}
+              onPress={() => confirmDelete(post.board_id)}
+            >
+              <Text style={styles.deleteButtonText}>삭제</Text>
+            </TouchableOpacity>
           </TouchableOpacity>
-        </TouchableOpacity>
-      ))}
+        ))
+      ) : (
+        <Text style={styles.noPostsText}>현재 내 게시글이 없습니다.</Text>
+      )}
     </ScrollView>
   );
-};
-
-
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -114,6 +115,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'red',
     padding: 10,
     borderRadius: 50, // 원형 버튼으로 변경
+  },
+  deleteButtonText: {
+    color: 'white',
+  },
+  noPostsText: {
+    textAlign: 'center', // 중앙 정렬
+    fontSize: 16, // 폰트 사이즈
+    color: '#666', // 폰트 색상
+    marginTop: 20, // 상단 여백
   },
 });
 

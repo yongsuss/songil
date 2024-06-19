@@ -1,49 +1,51 @@
 //지역 게시판
 
-
-import React, {  useContext, useState, useEffect } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Image, Button } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import { AppContext } from '../AppContext';
+import { useNavigation, useFocusEffect } from '@react-navigation/native'; // useFocusEffect 추가
 
 function FundBoard({ navigation, route }) {
-  const {azureUrl } = useContext(AppContext);
-  const { region, subregion,l } = route.params;
+  const { azureUrl } = useContext(AppContext);
+  const { region, subregion } = route.params;
   const [boards, setBoards] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  useEffect(() => {
-    const regionQuery = encodeURIComponent(region + (subregion ? ` ${subregion}` : ''));
-    let url = `http://20.39.190.194/board/region/${regionQuery}`;
-    if (selectedCategory !== 'all') {
-      url = `http://20.39.190.194/board/category/${selectedCategory}/region/${regionQuery}`;
-    }
-  
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
+  useFocusEffect(
+    React.useCallback(() => {
+      const regionQuery = encodeURIComponent(region + (subregion ? ` ${subregion}` : ''));
+      let url = `http://20.39.190.194/board/region/${regionQuery}`;
+      if (selectedCategory !== 'all') {
+        url = `http://20.39.190.194/board/category/${selectedCategory}/region/${regionQuery}`;
       }
-    })
-    .then(response => response.json())
-    .then(data => {
-      if (Array.isArray(data)) {
-        setBoards(data.map(item => ({ ...item.board, nickname: item.nickname })));
-      } else if (data.boards && Array.isArray(data.boards)) {
-        setBoards(data.boards.map(item => ({ ...item.board, nickname: item.nickname })));
-      } else {
+
+      fetch(url, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setBoards(data.map(item => ({ ...item.board, nickname: item.nickname })));
+        } else if (data.boards && Array.isArray(data.boards)) {
+          setBoards(data.boards.map(item => ({ ...item.board, nickname: item.nickname })));
+        } else {
+          setBoards([]);
+        }
+      })
+      .catch(error => {
+        console.error('Error loading boards:', error);
         setBoards([]);
-      }
-    })
-    .catch(error => {
-      console.error('Error loading boards:', error);
-      setBoards([]);
-    });
-  }, [selectedCategory, region, subregion]);
+      });
+    }, [selectedCategory, region, subregion]) // 의존성 배열에 포함
+  );
 
   const getCategoryLabel = (category) => {
     switch (category) {
@@ -55,18 +57,16 @@ function FundBoard({ navigation, route }) {
     }
   };
 
-  const navigateToBulletin = (board) => {  //게시글 작성으로 가기
-    navigation.navigate('Bulletin', { board,
-      selectedImage: board.image });
+  const navigateToBulletin = (board) => {
+    navigation.navigate('Bulletin', { board, selectedImage: board.image });
   };
 
   const filteredBoards = boards
     .filter(board => board.title.toLowerCase().includes(searchQuery.toLowerCase()))
-    .filter(board => board.state !== false) // board.state가 false가 아닌 것만 필터링
+    .filter(board => board.state !== false)
     .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
   const totalPages = Math.ceil(boards.length / itemsPerPage);
-
 
   return (
     <ScrollView style={styles.container}>
@@ -87,17 +87,21 @@ function FundBoard({ navigation, route }) {
         <Picker.Item label="장애인" value="2" />
         <Picker.Item label="한부모가족" value="3" />
       </Picker>
-      {filteredBoards.map((board, index) => (
-        <TouchableOpacity key={index} style={styles.boardItem} onPress={() => navigateToBulletin(board)}>
-          <View style={styles.boardContent}>
-            <Text style={styles.boardTitle}>{board.title}</Text>
-            <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategoryLabel(board.category)}</Text>
-          </View>
-          {board.image && (
-                <Image source={{ uri: azureUrl+'/board/'+board.image }} style={styles.boardImage} />
+      {filteredBoards.length > 0 ? (
+        filteredBoards.map((board, index) => (
+          <TouchableOpacity key={index} style={styles.boardItem} onPress={() => navigateToBulletin(board)}>
+            <View style={styles.boardContent}>
+              <Text style={styles.boardTitle}>{board.title}</Text>
+              <Text style={styles.nickname}>{board.nickname || "익명"} - {getCategoryLabel(board.category)}</Text>
+            </View>
+            {board.image && (
+              <Image source={{ uri: azureUrl+'/board/'+board.image }} style={styles.boardImage} />
             )}
-        </TouchableOpacity>
-      ))}
+          </TouchableOpacity>
+        ))
+      ) : (
+        <Text style={styles.noBoardsText}>해당 지역에 게시글이 없습니다.</Text>
+      )}
       <View style={styles.pagination}>
         {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
           <Button key={page} title={page.toString()} onPress={() => setCurrentPage(page)} />
@@ -140,29 +144,35 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 3,
     alignItems: 'center'
-},
-boardContent: {
-    flex: 3,  // 텍스트 영역이 더 큰 공간을 차지하도록 설정
-},
-boardTitle: {
+  },
+  boardContent: {
+    flex: 3,
+  },
+  boardTitle: {
     fontSize: 18,
     fontWeight: 'bold'
-},
-nickname: {
+  },
+  nickname: {
     fontSize: 14,
     color: '#666'
-},
-boardImage: {
-    width: 80,  // 이미지 폭 고정
-    height: 80,  // 이미지 높이 고정
-    borderRadius: 8,  // 이미지 모서리 둥글게
-    resizeMode: 'cover'  // 이미지 비율 유지하면서 영역 채우기
-},
+  },
+  boardImage: {
+    width: 80,
+    height: 80,
+    borderRadius: 8,
+    resizeMode: 'cover'
+  },
   pagination: {
     flexDirection: 'row',
     justifyContent: 'center',
     marginTop: 20,
-    resizeMode: 'contain',
+    backgroundColor: '#a0a0a0'
+  },
+  noBoardsText: {
+    textAlign: 'center',
+    fontSize: 16,
+    marginTop: 20,
+    color: '#666',
   }
 });
 

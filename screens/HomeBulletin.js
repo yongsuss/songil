@@ -1,10 +1,12 @@
+
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Modal, Alert, Image, Pressable } from 'react-native';
 import { AppContext } from '../AppContext';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import axios from 'axios';
 
 function Bulletin({ route, navigation }) {
-    const { id, nickname, azureUrl } = useContext(AppContext);
+    const { id, nickname, azureUrl, apiUrl } = useContext(AppContext);
     const { board,Nickname } = route.params;
     const [comments, setComments] = useState([]);
     const [commentText, setCommentText] = useState('');
@@ -12,16 +14,39 @@ function Bulletin({ route, navigation }) {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [selectedImage, setSelectedImage] = useState(null);
 
+    const notification = async () => { //알림
+        const postData = {
+          id: board.id,
+          title: "댓글 업로드.",
+          message: "댓글이 추가 되었습니다."
+        };
+    
+        try {
+            const response = await axios.post(`${apiUrl}/notification/send`,postData);
+            console.log(response.data);
+        } catch (error) {
+            console.log('알림전송 실패:', error);
+        }
+    };
+
+    const isOwner = id === board.id; // 게시글 소유자인지 확인
+
     const navigateToDeliveryScreen = () => {
-        navigation.navigate('DeliveryScreen', {
-            weakId: board.id
-        });
+        if (isOwner) {
+            Alert.alert("알림", "자신의 게시글에는 기부할 수 없습니다.");
+        } else {
+            navigation.navigate('DeliveryScreen', {
+                weakId: board.id,
+                boardId: board.board_id
+            });
+        }
     };
 
     useEffect(() => {
-        console.log("Received board data:", board); // 게시글 정보 로깅
         fetchComments();
+        console.log(board.image);
     }, [board]); // board가 변경될 때마다 useEffect 실행
+    
 
     const fetchComments = () => {
         fetch(`http://20.39.190.194/comments/${board.board_id}`)
@@ -33,7 +58,7 @@ function Bulletin({ route, navigation }) {
                     postedAt: formatTimeElapsed(item.comment.day)
                 })));
             })
-            .catch(error => console.error('Error fetching comments:', error));
+            .catch(error => console.log('Error fetching comments:', error));
     };
 
     const formatTimeElapsed = (datetime) => {
@@ -72,11 +97,12 @@ function Bulletin({ route, navigation }) {
         })
         .then(response => response.json())
         .then(data => {
+            notification();
             const now = new Date().toISOString(); // 현재 시간을 ISO 문자열로 변환
-            setComments([...comments, {...data, postedAt: formatTimeElapsed(now)}]); // 댓글 목록에 즉시 추가
+            setComments([{...data, nickname: nickname, postedAt: formatTimeElapsed(now)}, ...comments]); // 댓글 목록에 즉시 추가
             setCommentText('');
         })
-        .catch(error => console.error('Error adding comment:', error));
+        .catch(error => console.log('Error adding comment:', error));
     };
 
     const handleDeleteComment = (comment) => {
@@ -88,7 +114,7 @@ function Bulletin({ route, navigation }) {
             method: 'DELETE'
         })
         .then(() => fetchComments())
-        .catch(error => console.error('Error deleting comment:', error));
+        .catch(error => console.log('Error deleting comment:', error));
     };
 
     const handleEditComment = (comment) => {
@@ -111,7 +137,7 @@ function Bulletin({ route, navigation }) {
             setCommentText('');
             fetchComments();
         })
-        .catch(error => console.error('Error updating comment:', error));
+        .catch(error => console.log('Error updating comment:', error));
     };
 
     const handleImagePress = (imageUrl) => {
@@ -124,17 +150,34 @@ function Bulletin({ route, navigation }) {
         setSelectedImage(null);
     };
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
+    };
+
     return (
         <ScrollView style={styles.container}>
             <Text style={styles.title}>{board.title}</Text>
-            <Text style={styles.content}>닉네임: {Nickname}</Text>
-            <Text style={styles.content}>필요한 물품: {board.item}</Text>
-            <Text style={styles.content}>내용: {board.text}</Text>
+            <View style={styles.infoContainer}>
+                <Text style={styles.infoText}>{Nickname}</Text>
+                <View style={styles.divider} />
+                <Text style={styles.infoText}>게시일 - {formatDate(board.day)}</Text>
+            </View>
             {board.image && (
                 <TouchableOpacity onPress={() => handleImagePress(azureUrl + '/board/' + board.image)}>
                     <Image source={{ uri: azureUrl + '/board/' + board.image }} style={styles.boardImage} />
                 </TouchableOpacity>
             )}
+            <View style={styles.contentBox}>
+            <Text style={styles.infoitemText}>필요한 물품 - {board.item}</Text>
+
+                <Text style={styles.content}>{board.text}</Text>
+            </View>
+            
             <View style={styles.inputContainer}>
     <TextInput
         style={styles.input}
@@ -217,12 +260,43 @@ const styles = StyleSheet.create({
     infoContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 8,
+        marginBottom: 15,  // 간격을 살짝 늘렸습니다.
+        justifyContent: 'space-between',
+        padding: 10,  // 추가된 패딩
+        backgroundColor: '#ffffff',  // 배경색 추가
+        borderRadius: 10,  // 모서리 둥글게 처리
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3
+    },
+    divider: {
+        height: 30,  // 더 큰 구분자
+        width: 2,  // 구분선 두께
+        backgroundColor: '#ccc',
+        marginHorizontal: 15  // 여백을 늘렸습니다.
     },
     infoText: {
         fontSize: 18,
-        color: '#666',
-        marginLeft: 5,
+        color: '#333',
+        fontWeight: 'bold',  // 글꼴 두께 추가
+    },
+    infoitemText: {
+        fontSize: 16,
+        color: '#000',
+        marginBottom: 10, // 여기서 필요한 물품과 내용 사이의 간격을 조정합니다.
+    },
+    contentBox: {
+        backgroundColor: '#ffffff',
+        padding: 20,
+        borderRadius: 10,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 3,
+        marginBottom: 20,
     },
     content: {
         fontSize: 16,
@@ -307,7 +381,7 @@ const styles = StyleSheet.create({
         width: '100%', // Make image full width
         height: 200, // Set fixed height, or adjust as needed
         resizeMode: 'cover', // Ensure the image covers the entire area
-        marginTop: 20,
+        marginTop: 5,
         marginBottom: 20,
     },
     modalBackground: {

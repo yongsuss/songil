@@ -1,4 +1,6 @@
 // 리뷰 적는 화면
+
+
 import React, { useState, useContext } from 'react';
 import { View, Text, Image, TextInput, ScrollView, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
@@ -37,8 +39,8 @@ function ReviewMakeScreen({ navigation }) {
       };
 
     const handleSubmit = async () => {
-        if (!reviewText.trim() || !boardId) {
-            Alert.alert("입력 오류", "모든 필드를 채워주세요.");
+        if (!reviewText.trim() || !reviewImageFileUri) {
+            Alert.alert("입력 오류", "후기 내용과 이미지를 모두 입력해주세요.");
             return;
         }
 
@@ -72,8 +74,9 @@ function ReviewMakeScreen({ navigation }) {
                 console.log(postData);
             })
             .catch(error => {
-                console.error('POST 요청 실패:', error);
-                Alert.alert("생성 실패", "아직 물품을 받지 못하셨습니다.");
+                
+                  //console.error('POST 요청 실패:', error);
+                  Alert.alert("생성 실패", "아직 물품을 받지 못하셨습니다.");
                 console.log(postData);
             });
         } catch (error) {
@@ -95,7 +98,10 @@ function ReviewMakeScreen({ navigation }) {
                 <TouchableOpacity onPress={handleChoosePhoto} style={[styles.button, {marginBottom: 10}]}>
                     <Text style={styles.buttonText}>이미지 가져오기(선택)</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={handleSubmit} style={styles.button}>
+                <TouchableOpacity
+                    onPress={handleSubmit}
+                    style={[styles.button, (!reviewText.trim() || !reviewImageFileUri) ? styles.buttonDisabled : {}]}
+                    disabled={!reviewText.trim() || !reviewImageFileUri}>
                     <Text style={styles.buttonText}>후기 추가</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
@@ -147,8 +153,12 @@ const styles = StyleSheet.create({
         color: 'white',
         fontWeight: 'bold',
         fontSize: 16
+    },
+    buttonDisabled: {
+        backgroundColor: '#ccc' // Light grey color to indicate disabled state
     }
 });
 
 export default ReviewMakeScreen;
+
 
