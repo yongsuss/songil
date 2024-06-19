@@ -225,6 +225,7 @@ const SettingsScreen = () => {
         onChangeText={setDetailAddress}
       /
       >
+        
       <CustomButton
           title="주소 확인"
           onPress={handleCheckAddress}

@@ -45,7 +45,15 @@ function MyPosts({ navigation }) {
       await axios.delete(`${apiUrl}/board/delete/${postId}`);
       fetchPosts(); // 게시글 목록 새로 고침
     } catch (error) {
-      console.error('게시글을 삭제하는데 실패했습니다:', error);
+      if (error.response && error.response.status === 500) {
+        // 405 Method Not Allowed 오류를 조용히 처리합니다.
+        // 필요한 경우 여기에 로그를 남기거나 상태를 업데이트할 수 있습니다.
+        console.log('500 Method Not Allowed - The method is not supported for the requested URL.');
+        Alert.alert("오류", `게시글 삭제에 실패했습니다.`);
+        
+        //console.error('게시글을 삭제하는데 실패했습니다:', error);
+      }
+      //console.error('게시글을 삭제하는데 실패했습니다:', error);
     }
   };
 
