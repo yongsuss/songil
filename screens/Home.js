@@ -31,10 +31,9 @@ const Home = () => {
         console.log('404 Method Not Allowed - The method is not supported for the requested URL.');
         setRegionBoards([]); // 오류 발생시에도 빈 배열로 설정
       }
-      
       else {
-    // 다른 종류의 오류에 대해 처리합니다.
-        // console.error('Error fetching region boards:', error);
+      // 다른 종류의 오류에 대해 처리합니다.
+         console.log('Error fetching region boards:', error);
       }
     }
   };

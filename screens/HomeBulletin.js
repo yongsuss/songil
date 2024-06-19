@@ -58,7 +58,7 @@ function Bulletin({ route, navigation }) {
                     postedAt: formatTimeElapsed(item.comment.day)
                 })));
             })
-            .catch(error => console.error('Error fetching comments:', error));
+            .catch(error => console.log('Error fetching comments:', error));
     };
 
     const formatTimeElapsed = (datetime) => {
@@ -102,7 +102,7 @@ function Bulletin({ route, navigation }) {
             setComments([{...data, nickname: nickname, postedAt: formatTimeElapsed(now)}, ...comments]); // 댓글 목록에 즉시 추가
             setCommentText('');
         })
-        .catch(error => console.error('Error adding comment:', error));
+        .catch(error => console.log('Error adding comment:', error));
     };
 
     const handleDeleteComment = (comment) => {
@@ -114,7 +114,7 @@ function Bulletin({ route, navigation }) {
             method: 'DELETE'
         })
         .then(() => fetchComments())
-        .catch(error => console.error('Error deleting comment:', error));
+        .catch(error => console.log('Error deleting comment:', error));
     };
 
     const handleEditComment = (comment) => {
@@ -137,7 +137,7 @@ function Bulletin({ route, navigation }) {
             setCommentText('');
             fetchComments();
         })
-        .catch(error => console.error('Error updating comment:', error));
+        .catch(error => console.log('Error updating comment:', error));
     };
 
     const handleImagePress = (imageUrl) => {
