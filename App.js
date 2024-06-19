@@ -17,7 +17,6 @@ export default function App() {
         shouldSetBadge: false,
       }),
     });
-
   }, []);
 
   async function registerForPushNotificationsAsync() {//알림 초기 설정
@@ -50,7 +49,3 @@ export default function App() {
     </AppProvider>
   );
 }
-
-/*export default function App() {
-  return <Navigation />;
-}*/

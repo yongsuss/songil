@@ -67,7 +67,7 @@ function ReviewMakeScreen({ navigation }) {
         try {
             await axios.post(`${apiUrl}/reviews/add/`, postData)
             .then(response => {
-                Alert.alert("성공", "리뷰가 성공적으로 추가되었습니다.");
+                Alert.alert("성공", "후기가 성공적으로 추가되었습니다.");
                 navigation.goBack();
                 console.log(postData);
             })
@@ -77,7 +77,7 @@ function ReviewMakeScreen({ navigation }) {
                 console.log(postData);
             });
         } catch (error) {
-            Alert.alert("오류", "리뷰 추가 중 오류 발생: " + error.message);
+            Alert.alert("오류", "후기 추가 중 오류 발생: " + error.message);
         }
     };
 
@@ -86,7 +86,7 @@ function ReviewMakeScreen({ navigation }) {
             <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : "height"} style={styles.form}>
                 <TextInput
                     style={styles.textArea}
-                    placeholder="리뷰 내용"
+                    placeholder="후기 내용"
                     value={reviewText}
                     onChangeText={setReviewText}
                     multiline
@@ -96,7 +96,7 @@ function ReviewMakeScreen({ navigation }) {
                     <Text style={styles.buttonText}>이미지 가져오기(선택)</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={handleSubmit} style={styles.button}>
-                    <Text style={styles.buttonText}>리뷰 추가</Text>
+                    <Text style={styles.buttonText}>후기 추가</Text>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
         </ScrollView>

@@ -194,8 +194,9 @@ function FundBoardMake({ navigation }) {
     };
 
     const handleSubmit = async () => {//게시글 생성
-        if (!validateFields()) {
-            return;
+        if (!title.trim() || !text.trim() || !item.trim() || !boardImageFileUri) {
+            Alert.alert("오류", "제목, 내용, 필요한 물품, 그리고 이미지는 필수 입력 사항입니다.");
+            return false;
         }
 
         if(boardImageFileUri){
